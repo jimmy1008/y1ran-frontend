@@ -1,25 +1,26 @@
-﻿// frontend/src/api/auth.js
-import api from './client';
+﻿// src/api/auth.js
+import { apiFetch } from './client';
 
-export function register(email, password) {
-  return api('/auth/register', {
+// 註冊
+export async function register(email, password) {
+  return apiFetch('/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: { email, password },
   });
 }
 
-export function login(email, password) {
-  return api('/auth/login', {
+// 登入
+export async function login(email, password) {
+  return apiFetch('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: { email, password },
   });
 }
 
-export function getMe(token) {
-  return api('/me', {
+// 取得 /me
+export async function getMe(token) {
+  return apiFetch('/me', {
     method: 'GET',
-    headers: {
-      Authorization: Bearer ,
-    },
+    token,
   });
 }
