@@ -1,110 +1,105 @@
-﻿// src/pages/Home/Home.jsx
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import y1ranLogo from "../../assets/y1ran-logo.png";
 
 export default function Home() {
   return (
-    <div className="line-shell">
-      {/* Top Nav */}
-      <header className="line-nav">
-        <div className="line-nav__left">
-          <img src={y1ranLogo} alt="y1ran" className="line-logo" />
-          <div className="line-brand">
-            <div className="line-brand__name">y1ran Web</div>
-            <div className="line-brand__sub">products · playground</div>
+    <div className="home">
+      {/* Header */}
+      <header className="home__nav">
+        <div className="home__brand">
+          <img src={y1ranLogo} alt="y1ran" className="home__logo" />
+          <div>
+            <div className="home__brandName">y1ran Web</div>
+            <div className="home__brandSub">products · playground</div>
           </div>
         </div>
 
-        <nav className="line-nav__right">
-          <Link className="line-link" to="/products">應用</Link>
-          <Link className="line-link" to="/status">狀態</Link>
-          <Link className="line-cta" to="/login">登入 / 註冊</Link>
+        <nav className="home__menu">
+          <Link className="home__link" to="/products">應用</Link>
+          <Link className="home__link" to="/status">狀態</Link>
+          <Link className="home__cta" to="/login">登入 / 註冊</Link>
         </nav>
       </header>
 
-      {/* HERO (LINE-style) */}
-      <section className="line-hero">
-        <div className="line-hero__overlay" />
-        <div className="line-hero__content">
-          <h1 className="line-hero__title">應用與工具入口</h1>
-          <p className="line-hero__desc">
-            集中管理的應用與工具入口。<br />
-            直接使用 Web 版，或下載對應平台。
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero__wrap">
+          <h1 className="hero__title">應用與工具入口</h1>
+          <p className="hero__desc">
+            集中管理可用應用，提供 Web 使用與下載入口。
           </p>
 
-          <div className="line-hero__actions">
-            <Link className="btn-primary" to="/products">查看應用</Link>
-            <a className="btn-ghost" href="/app">開啟 Web</a>
-            <a className="btn-ghost" href="#" onClick={(e)=>e.preventDefault()}>下載</a>
+          <div className="hero__actions">
+            <Link className="btn btn--primary" to="/products">查看應用</Link>
+            <a className="btn btn--ghost" href="/app">開啟 Web</a>
+            <button className="btn btn--ghost" type="button" disabled>下載</button>
           </div>
 
-          <div className="line-hero__download">
-            <div className="download-label">Downloads</div>
-            <div className="download-row">
-              <a className="download-icon" href="#" onClick={(e)=>e.preventDefault()}>Windows</a>
-              <a className="download-icon" href="#" onClick={(e)=>e.preventDefault()}>macOS</a>
-              <a className="download-icon" href="#" onClick={(e)=>e.preventDefault()}>Android</a>
-              <a className="download-icon" href="#" onClick={(e)=>e.preventDefault()}>iOS</a>
+          <div className="hero__chips">
+            <span className="chip">Windows</span>
+            <span className="chip">macOS</span>
+            <span className="chip">Android</span>
+            <span className="chip">iOS</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured */}
+      <section className="featured">
+        <div className="featured__wrap">
+          <div className="featured__card">
+            <div className="featured__tag">FEATURED</div>
+            <div className="featured__title">Trading Journal · Beta</div>
+            <div className="featured__desc">交易紀錄與復盤系統 · PnL / R 倍數 / 匯出</div>
+
+            <div className="featured__actions">
+              <Link className="btn btn--primary" to="/products/journal">了解更多</Link>
+              <a className="btn btn--ghostDark" href="/app">開啟 Web</a>
+              <button className="btn btn--ghostDark" type="button" disabled>下載</button>
             </div>
           </div>
-
-          <div className="line-scroll">Scroll</div>
         </div>
       </section>
 
-      {/* FEATURED (Riot-ish creative strip) */}
-      <section className="riot-strip">
-        <div className="riot-strip__card">
-          <div className="riot-strip__tag">FEATURED</div>
-          <div className="riot-strip__title">Trading Journal · Beta</div>
-          <div className="riot-strip__desc">
-            交易紀錄與復盤系統。PnL / R 倍數 / 匯出。
-          </div>
-          <div className="riot-strip__actions">
-            <Link className="btn-primary" to="/products/journal">了解更多</Link>
-            <a className="btn-ghost" href="/app">開啟 Web</a>
-            <a className="btn-ghost" href="#" onClick={(e)=>e.preventDefault()}>下載</a>
-          </div>
-        </div>
-      </section>
+      {/* Apps preview */}
+      <section className="apps">
+        <div className="apps__wrap">
+          <div className="apps__title">應用</div>
 
-      {/* PRODUCTS PREVIEW */}
-      <section className="line-section">
-        <div className="section-title">應用</div>
-        <div className="cards">
-          <div className="card">
-            <div className="card-title">Trading Journal</div>
-            <div className="card-desc">交易紀錄與復盤系統</div>
-            <div className="card-meta">Web / PWA · Beta</div>
-            <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <Link className="mini-primary" to="/products/journal">介紹</Link>
-              <a className="mini-ghost" href="/app">開啟 Web</a>
-              <a className="mini-ghost" href="#" onClick={(e)=>e.preventDefault()}>下載</a>
+          <div className="apps__grid">
+            <div className="appCard">
+              <div className="appCard__name">Trading Journal</div>
+              <div className="appCard__desc">交易紀錄與復盤系統</div>
+              <div className="appCard__meta">Web / PWA · Beta</div>
+              <div className="appCard__actions">
+                <Link className="mini mini--primary" to="/products/journal">介紹</Link>
+                <a className="mini mini--ghost" href="/app">開啟 Web</a>
+                <button className="mini mini--ghost" type="button" disabled>下載</button>
+              </div>
+            </div>
+
+            <div className="appCard appCard--disabled">
+              <div className="appCard__name">Utilities</div>
+              <div className="appCard__desc">小工具 / 實驗性功能</div>
+              <div className="appCard__meta">Coming soon</div>
+            </div>
+
+            <div className="appCard appCard--disabled">
+              <div className="appCard__name">Docs</div>
+              <div className="appCard__desc">使用說明 / 匯出格式</div>
+              <div className="appCard__meta">Coming soon</div>
             </div>
           </div>
-
-          <div className="card card--disabled">
-            <div className="card-title">Utilities</div>
-            <div className="card-desc">小工具 / 實驗性功能</div>
-            <div className="card-meta">Coming soon</div>
-          </div>
-
-          <div className="card card--disabled">
-            <div className="card-title">Docs</div>
-            <div className="card-desc">使用說明 / 規格 / 匯出格式</div>
-            <div className="card-meta">Coming soon</div>
-          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="line-footer">
+      <footer className="home__footer">
         <div>Maintained by y1ran</div>
-        <div className="footer-icons">
-          <a href="#" aria-label="Discord">🔗</a>
-          <a href="#" aria-label="Telegram">🔗</a>
-          <a href="#" aria-label="X">🔗</a>
-          <a href="#" aria-label="IG">🔗</a>
+        <div className="home__footerLinks">
+          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
+          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
+          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
+          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
         </div>
       </footer>
     </div>

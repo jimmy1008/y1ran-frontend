@@ -1,10 +1,10 @@
 ﻿// src/App.jsx
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home/Home";
 import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/Product/ProductDetail";
 import Status from "./pages/Status/Status";
 import Login from "./pages/Auth/Login";
-import Home from "./pages/Home/Home";
 import Footer from "./components/Footer";
 
 export default function App() {
