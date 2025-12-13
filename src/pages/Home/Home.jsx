@@ -1,107 +1,89 @@
 ﻿import { Link } from "react-router-dom";
-import y1ranLogo from "../../assets/y1ran-logo.png";
+import { products } from "../../data/products";
 
 export default function Home() {
-  return (
-    <div className="home">
-      {/* Header */}
-      <header className="home__nav">
-        <div className="home__brand">
-          <img src={y1ranLogo} alt="y1ran" className="home__logo" />
-          <div>
-            <div className="home__brandName">y1ran Web</div>
-            <div className="home__brandSub">products · playground</div>
-          </div>
-        </div>
+  const featured = products?.find?.((p) => p.featured) || products?.[0];
 
-        <nav className="home__menu">
-          <Link className="home__link" to="/products">應用</Link>
-          <Link className="home__link" to="/status">狀態</Link>
-          <Link className="home__cta" to="/login">登入 / 註冊</Link>
-        </nav>
+  return (
+    <>
+      {/* Header */}
+      <header className="siteHeader">
+        <div className="siteHeader__inner">
+          <div className="siteHeader__brand header-left">
+            <img src="/y1ran-logo.png" alt="y1ran" className="header-logo" />
+            <div className="header-title">
+              <div className="title">y1ran Web</div>
+              <div className="subtitle">products · playground</div>
+            </div>
+          </div>
+          <nav className="siteHeader__nav">
+            <Link to="/products" className="siteHeader__link">應用</Link>
+            <Link to="/status" className="siteHeader__link">狀態</Link>
+            <Link to="/login" className="siteHeader__cta">登入 / 註冊</Link>
+          </nav>
+        </div>
       </header>
 
-      {/* Hero */}
-      <section className="hero">
-        <div className="hero__wrap">
-          <h1 className="hero__title">應用與工具入口</h1>
-          <p className="hero__desc">
-            集中管理可用應用，提供 Web 使用與下載入口。
-          </p>
+      <main className="siteMain">
+        {/* HERO */}
+        <section className="homeHero">
+          <div className="homeHero__inner">
+            <div className="homeHero__content">
+              <h1 className="homeHero__title">
+                <span className="gradText">y1ran web</span>
+              </h1>
 
-          <div className="hero__actions">
-            <Link className="btn btn--primary" to="/products">查看應用</Link>
-            <a className="btn btn--ghost" href="/app">開啟 Web</a>
-            <button className="btn btn--ghost" type="button" disabled>下載</button>
-          </div>
-
-          <div className="hero__chips">
-            <span className="chip">Windows</span>
-            <span className="chip">macOS</span>
-            <span className="chip">Android</span>
-            <span className="chip">iOS</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured */}
-      <section className="featured">
-        <div className="featured__wrap">
-          <div className="featured__card">
-            <div className="featured__tag">FEATURED</div>
-            <div className="featured__title">Trading Journal · Beta</div>
-            <div className="featured__desc">交易紀錄與復盤系統 · PnL / R 倍數 / 匯出</div>
-
-            <div className="featured__actions">
-              <Link className="btn btn--primary" to="/products/journal">了解更多</Link>
-              <a className="btn btn--ghostDark" href="/app">開啟 Web</a>
-              <button className="btn btn--ghostDark" type="button" disabled>下載</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Apps preview */}
-      <section className="apps">
-        <div className="apps__wrap">
-          <div className="apps__title">應用</div>
-
-          <div className="apps__grid">
-            <div className="appCard">
-              <div className="appCard__name">Trading Journal</div>
-              <div className="appCard__desc">交易紀錄與復盤系統</div>
-              <div className="appCard__meta">Web / PWA · Beta</div>
-              <div className="appCard__actions">
-                <Link className="mini mini--primary" to="/products/journal">介紹</Link>
-                <a className="mini mini--ghost" href="/app">開啟 Web</a>
-                <button className="mini mini--ghost" type="button" disabled>下載</button>
+              <div className="homeHero__cta">
+                <Link className="btn btn--primary" to="/products">查看應用</Link>
+                <button className="btn btn--ghost" type="button" disabled>開啟 Web</button>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="appCard appCard--disabled">
-              <div className="appCard__name">Utilities</div>
-              <div className="appCard__desc">小工具 / 實驗性功能</div>
-              <div className="appCard__meta">Coming soon</div>
+        {/* FEATURED（柔和接段） */}
+        {featured && (
+          <section className="homeFeatured">
+            <div className="homeFeatured__inner">
+              <div className="featuredCard">
+                <div className="featuredCard__kicker">FEATURED</div>
+                <div className="featuredCard__title">{featured.title || featured.name}</div>
+                <div className="featuredCard__desc">{featured.subtitle || featured.tagline || featured.description}</div>
+
+                <div className="featuredCard__actions">
+                  <Link className="btn btn--primary" to={`/products/${featured.id}`}>了解更多</Link>
+                  <button className="btn btn--ghost" type="button" disabled>開啟 Web</button>
+                </div>
+              </div>
             </div>
+          </section>
+        )}
 
-            <div className="appCard appCard--disabled">
-              <div className="appCard__name">Docs</div>
-              <div className="appCard__desc">使用說明 / 匯出格式</div>
-              <div className="appCard__meta">Coming soon</div>
+        {/* APPS */}
+        <section className="homeApps">
+          <div className="homeApps__inner">
+            <h2 className="sectionTitle">應用</h2>
+
+            <div className="appGrid">
+              {products?.slice?.(0, 6)?.map((p) => (
+                <article key={p.id} className="appCard">
+                  <div className="appCard__top">
+                    <div className="appCard__name">{p.title || p.name}</div>
+                    <div className="appCard__meta">{p.platform || "Web / PWA"}</div>
+                  </div>
+
+                  <div className="appCard__desc">{p.subtitle || p.tagline || p.description}</div>
+
+                  <div className="appCard__actions">
+                    <Link className="btn btn--small btn--primary" to={`/products/${p.id}`}>介紹</Link>
+                    <button className="btn btn--small btn--ghost" type="button" disabled>開啟 Web</button>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      <footer className="home__footer">
-        <div>Maintained by y1ran</div>
-        <div className="home__footerLinks">
-          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
-          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
-          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
-          <a href="#" onClick={(e)=>e.preventDefault()}>Link</a>
-        </div>
-      </footer>
-    </div>
+        </section>
+      </main>
+    </>
   );
 }

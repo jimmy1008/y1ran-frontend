@@ -6,9 +6,10 @@ export default function Products() {
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 20px" }}>
       <div style={{ marginBottom: 22 }}>
-        <div style={{ fontSize: 28, fontWeight: 800 }}>Products</div>
-        <div style={{ opacity: 0.75, marginTop: 6 }}>
-          A collection of practical apps & tools. No blog. No stories.
+        <div style={{ fontSize: 28, fontWeight: 800 }}>y1ran Web</div>
+        <div style={{ opacity: 0.75, marginTop: 6, lineHeight: 1.6 }}>
+          集中展示正在開發與維護的系統與工具。<br />
+          以實用為導向，非部落格、非教學站。
         </div>
       </div>
 
@@ -27,8 +28,11 @@ export default function Products() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "start" }}>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 800 }}>{p.name}</div>
-                <div style={{ marginTop: 6, opacity: 0.8 }}>{p.tagline}</div>
+                <div style={{ fontSize: 18, fontWeight: 800 }}>{p.title || p.name}</div>
+                <div style={{ marginTop: 6, opacity: 0.8 }}>{p.subtitle || p.tagline}</div>
+                <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
+                  狀態：{p.status} · {p.platform}
+                </div>
               </div>
 
               <div style={{ textAlign: "right", fontSize: 12, opacity: 0.85 }}>
@@ -36,6 +40,14 @@ export default function Products() {
                 <div style={{ marginTop: 6, fontWeight: 700 }}>{p.status}</div>
               </div>
             </div>
+
+            {p.id === "journal" && (
+              <ul style={{ marginTop: 10, paddingLeft: 18, fontSize: 13, opacity: 0.85 }}>
+                <li>手動交易紀錄與復盤</li>
+                <li>自動計算 PnL、R 倍數、勝率</li>
+                <li>支援資料匯出（CSV / JSON）</li>
+              </ul>
+            )}
 
             <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
               <Link
@@ -50,7 +62,7 @@ export default function Products() {
                   fontSize: 14,
                 }}
               >
-                View
+                查看
               </Link>
               <a
                 href={p.actions?.[0]?.href ?? "#"}
@@ -65,7 +77,7 @@ export default function Products() {
                   pointerEvents: p.actions?.[0]?.href ? "auto" : "none",
                 }}
               >
-                {p.actions?.[0]?.label ?? "Open"}
+                {p.actions?.[0]?.label ?? "開啟系統"}
               </a>
             </div>
           </div>
