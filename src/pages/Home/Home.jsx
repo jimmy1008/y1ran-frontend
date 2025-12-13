@@ -26,10 +26,10 @@ export default function Home() {
       <section className="line-hero">
         <div className="line-hero__overlay" />
         <div className="line-hero__content">
-          <h1 className="line-hero__title">Life on y1ran</h1>
+          <h1 className="line-hero__title">應用與工具入口</h1>
           <p className="line-hero__desc">
-            工具、系統、應用入口。<br />
-            不寫部落格，直接給能用的東西。
+            集中管理的應用與工具入口。<br />
+            直接使用 Web 版，或下載對應平台。
           </p>
 
           <div className="line-hero__actions">
