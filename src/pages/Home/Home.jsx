@@ -35,7 +35,7 @@ export default function Home() {
 
               <div className="homeHero__cta">
                 <Link className="btn btn--primary" to="/products">查看應用</Link>
-                <button className="btn btn--ghost" type="button" disabled>開啟 Web</button>
+                <Link className="btn btn--ghost" to="/app">開啟 Web</Link>
               </div>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function Home() {
 
                 <div className="featuredCard__actions">
                   <Link className="btn btn--primary" to={`/products/${featured.id}`}>了解更多</Link>
-                  <button className="btn btn--ghost" type="button" disabled>開啟 Web</button>
+                  <Link className="btn btn--ghost" to="/app">開啟 Web</Link>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function Home() {
 
                   <div className="appCard__actions">
                     <Link className="btn btn--small btn--primary" to={`/products/${p.id}`}>介紹</Link>
-                    <button className="btn btn--small btn--ghost" type="button" disabled>開啟 Web</button>
+                    <Link className="btn btn--small btn--ghost" to="/app">開啟 Web</Link>
                   </div>
                 </article>
               ))}
