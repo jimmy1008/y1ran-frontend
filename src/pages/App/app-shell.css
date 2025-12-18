@@ -1,0 +1,316 @@
+﻿/* src/pages/App/app-shell.css */
+.appShell{
+  display:flex;
+  min-height: calc(100vh - 64px); /* 64px 雿???navbar 擃漲銝?摰?閬箏?銝?撠望??100vh */
+  gap: 18px;
+  padding: 18px;
+}
+
+.appSidebar{
+  width: 260px;
+  flex: 0 0 260px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(20, 40, 80, .08);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(20,40,80,.06);
+  padding: 16px;
+  display:flex;
+  flex-direction: column;
+}
+
+.appProfile{
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  padding: 10px 10px 14px;
+}
+
+.appAvatar{
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(150,200,255,.9), rgba(255,255,255,.9));
+  border: 1px solid rgba(20,40,80,.08);
+}
+
+.appName{ margin-top: 10px; font-weight: 700; }
+.appUid{ opacity: .6; font-size: 12px; margin-top: 2px; }
+
+.appBlock{ margin-top: 10px; }
+.appBlockTitle{ font-size: 12px; opacity: .6; margin: 10px 2px; }
+
+.appNav{ display:flex; flex-direction: column; gap: 8px; }
+.appNavItem{
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration:none;
+  color: inherit;
+  border: 1px solid rgba(20,40,80,.06);
+  background: rgba(255,255,255,.55);
+}
+.appNavItem.isActive{
+  background: rgba(90,150,255,.14);
+  border-color: rgba(90,150,255,.22);
+}
+
+.appFooter{
+  margin-top:auto;
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.appQuickBtn{
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(90,150,255,.25);
+  background: rgba(90,150,255,.14);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.appVersion{ font-size: 12px; opacity: .6; text-align:center; }
+
+.appMain{
+  flex: 1;
+  min-width: 0;
+}
+.appMainInner{
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(20, 40, 80, .08);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(20,40,80,.06);
+  padding: 18px;
+  min-height: 100%;
+}
+
+/* --- button feedback --- */
+.appQuickBtn, .appNavItem, .appAvatarBtn{
+  transition: transform .08s ease, filter .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.appQuickBtn:hover, .appNavItem:hover, .appAvatarBtn:hover{ filter: brightness(0.99); }
+.appQuickBtn:active, .appNavItem:active, .appAvatarBtn:active{
+  transform: translateY(1px) scale(0.99);
+  filter: brightness(0.98);
+}
+.appQuickBtn:focus-visible, .appNavItem:focus-visible, .appAvatarBtn:focus-visible{
+  outline: 2px solid rgba(60,120,255,.35);
+  outline-offset: 2px;
+}
+
+/* avatar clickable */
+.appAvatarBtn{
+  width: 68px;
+  height: 68px;
+  border-radius: 999px;
+  border: 1px solid rgba(20,40,80,.08);
+  background: linear-gradient(135deg, rgba(150,200,255,.9), rgba(255,255,255,.9));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.appAvatarImg{
+  width: 68px;
+  height: 68px;
+  border-radius: 999px;
+  object-fit: cover;
+  display:block;
+}
+
+/* modal (reuse journal classes within app shell) */
+.appShell .appProfileModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 20px;
+  z-index: 999;
+}
+.appShell .appProfileModal .jModal{
+  width: min(520px, 96vw);
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  position: relative;
+  padding: 18px;
+}
+.appShell .appProfileModal .jModalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.appShell .appProfileModal .jModalBody{
+  margin-bottom: 12px;
+}
+.appShell .appProfileModal .jIconBtn{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.9);
+  cursor: pointer;
+}
+.appShell .appProfileModal .jModalActions{
+  display:flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+.appShell .appProfileModal .jModalActions > button{
+  flex: 1;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height: 1;
+  box-sizing: border-box;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.appShell .appProfileModal .jBtn{
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.85);
+  cursor: pointer;
+}
+.appShell .appProfileModal .jBtnPrimary{
+  border: 1px solid rgba(70,120,255,.35);
+  background: rgba(70,120,255,.18);
+}
+
+
+/* ===== icon button (+ / x) with feedback ===== */
+.appIconBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+}
+.appIconBtn:hover{ background: rgba(245,248,255,1); border-color: rgba(70,120,255,.25); }
+.appIconBtn:active{ transform: scale(0.98); }
+
+.appSide__section{ margin-top: 14px; }
+.appSide__sectionHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin: 10px 6px 8px;
+}
+.appSide__sectionTitle{
+  font-size: 12px;
+  opacity: .65;
+  letter-spacing: .2px;
+}
+
+.exList{ display:flex; flex-direction:column; gap: 10px; padding: 0 6px; }
+.exEmpty{ font-size: 12px; opacity: .55; padding: 8px 6px; }
+
+.exRow{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.85);
+}
+.exAvatar{
+  width: 34px; height: 34px;
+  border-radius: 999px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(180deg, rgba(210,230,255,1), rgba(245,250,255,1));
+  border: 1px solid rgba(0,0,0,0.06);
+  font-weight: 700;
+}
+.exName{ flex:1; font-size: 13px; font-weight: 600; }
+
+.exDot{
+  width: 10px; height: 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.18);
+}
+.exDot--ok{ background: #2ecc71; }
+.exDot--err{ background: #ff4d4f; }
+
+/* ===== modal ===== */
+.exModalBackdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 9999;
+}
+.exModal{
+  width: min(860px, calc(100vw - 60px));
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 20px 80px rgba(0,0,0,0.25);
+  padding: 18px;
+}
+.exModalHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 14px;
+}
+.exModalTitle{ font-size: 18px; font-weight: 800; }
+
+.exGrid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 740px){
+  .exGrid{ grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+}
+
+.exPick{
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.96);
+  border-radius: 14px;
+  padding: 16px 12px;
+  cursor:pointer;
+  transition: transform .06s ease, border-color .15s ease, background .15s ease;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 10px;
+}
+.exPick:hover{ border-color: rgba(70,120,255,.28); background: rgba(245,248,255,1); }
+.exPick:active{ transform: scale(0.99); }
+
+.exPick--disabled{
+  opacity: .45;
+  cursor: not-allowed;
+}
+.exPickIcon{
+  width: 54px; height: 54px;
+  border-radius: 999px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(180deg, rgba(210,230,255,1), rgba(245,250,255,1));
+  border: 1px solid rgba(0,0,0,0.06);
+  font-weight: 800;
+  font-size: 18px;
+}
+.exPickName{ font-weight: 700; font-size: 13px; }
