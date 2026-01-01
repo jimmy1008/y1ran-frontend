@@ -12,7 +12,7 @@ export async function apiFetch(path, options = {}) {
   const token = data?.session?.access_token || null;
   const headers = {
     ...(options.headers || {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.skipAuth ? {} : token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   if (!headers["Content-Type"]) {
