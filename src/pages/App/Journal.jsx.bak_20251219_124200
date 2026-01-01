@@ -1,0 +1,400 @@
+﻿import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import "./Journal.css";
+
+const LS_KEY = "y1ran_journal_entries_v1";
+
+function safeJsonParse(s, fallback) {
+  try {
+    const v = JSON.parse(s);
+    return v ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function loadEntries() {
+  const raw = localStorage.getItem(LS_KEY);
+  const arr = raw ? safeJsonParse(raw, []) : [];
+  if (Array.isArray(arr) && arr.length) return arr;
+
+  // seed demo (避免空畫面)
+  const seeded = [
+    {
+      id: "e1",
+      symbol: "BTC",
+      dir: "Long",
+      time: "2025-12-17 13:51",
+      cover:
+        "",
+      status: "open",
+    },
+    {
+      id: "e2",
+      symbol: "BTC",
+      dir: "Long",
+      time: "2025-12-17 13:50",
+      cover:
+        "",
+      status: "done",
+    },
+    {
+      id: "e3",
+      symbol: "BTC",
+      dir: "Long",
+      time: "2025-12-17 13:01",
+      cover:
+        "",
+      status: "open",
+    },
+  ];
+  localStorage.setItem(LS_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+
+function saveEntries(list) {
+  localStorage.setItem(LS_KEY, JSON.stringify(list));
+}
+
+function inToday(yyyyMMddHHmm) {
+  // 這裡用字串前 10 位當日期，簡化（你的真實資料之後再換成 timestamp）
+  const d = (yyyyMMddHHmm || "").slice(0, 10);
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return d === `${y}-${m}-${day}`;
+}
+
+function isThisWeek(yyyyMMddHHmm) {
+  // 粗略版：同一週 (Mon-Sun)
+  const s = (yyyyMMddHHmm || "").slice(0, 10);
+  const dt = new Date(s);
+  if (Number.isNaN(dt.getTime())) return false;
+
+  const now = new Date();
+  const day = (now.getDay() + 6) % 7; // Mon=0
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - day);
+  monday.setHours(0, 0, 0, 0);
+
+  const nextMonday = new Date(monday);
+  nextMonday.setDate(monday.getDate() + 7);
+
+  return dt >= monday && dt < nextMonday;
+}
+
+export default function Journal() {
+  const [sp, setSp] = useSearchParams();
+
+  // tabs: all / today / week / done
+  const [tab, setTab] = useState("all");
+
+  // remove mode
+  const [removeMode, setRemoveMode] = useState(false);
+
+  // modal state
+  const [createOpen, setCreateOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [active, setActive] = useState(null);
+
+  const [entries, setEntries] = useState(() => loadEntries());
+
+  useEffect(() => {
+    saveEntries(entries);
+  }, [entries]);
+
+  // 支援 /app/journal?create=1
+  useEffect(() => {
+    if (sp.get("create") === "1") {
+      setCreateOpen(true);
+      const next = new URLSearchParams(sp);
+      next.delete("create");
+      setSp(next, { replace: true });
+    }
+  }, [sp, setSp]);
+
+  const filtered = useMemo(() => {
+    if (tab === "today") return entries.filter((e) => inToday(e.time));
+    if (tab === "week") return entries.filter((e) => isThisWeek(e.time));
+    if (tab === "done") return entries.filter((e) => e.status === "done");
+    return entries;
+  }, [entries, tab]);
+
+  const perf = useMemo(() => {
+    const todayCount = entries.filter((e) => inToday(e.time)).length;
+    const total = entries.length;
+    return { todayCount, total };
+  }, [entries]);
+
+  function openCreate() {
+    setCreateOpen(true);
+  }
+
+  function openDetail(item) {
+    setActive(item);
+    setDetailOpen(true);
+  }
+
+  function onCardClick(item) {
+    if (removeMode) {
+      // remove mode: 點卡片直接移除
+      setEntries((prev) => prev.filter((x) => x.id !== item.id));
+      return;
+    }
+    openDetail(item);
+  }
+
+  function addOneDummy() {
+    const id = "e" + Math.random().toString(16).slice(2);
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+
+    const item = {
+      id,
+      symbol: "BTC",
+      dir: "Long",
+      time: `${y}-${m}-${d} ${hh}:${mm}`,
+      cover:
+        "",
+      status: "open",
+    };
+    setEntries((prev) => [item, ...prev]);
+  }
+
+  return (
+    <div className="jBoardMain">
+      <div className="jTopSpan">
+        <div className="jTitle">儀表板</div>
+
+        <div className="jTabs">
+          <button
+            type="button"
+            className={"jTab" + (tab === "all" ? " isActive" : "")}
+            onClick={() => setTab("all")}
+          >
+            全部
+          </button>
+          <button
+            type="button"
+            className={"jTab" + (tab === "today" ? " isActive" : "")}
+            onClick={() => setTab("today")}
+          >
+            今天
+          </button>
+          <button
+            type="button"
+            className={"jTab" + (tab === "week" ? " isActive" : "")}
+            onClick={() => setTab("week")}
+          >
+            本週
+          </button>
+          <button
+            type="button"
+            className={"jTab" + (tab === "done" ? " isActive" : "")}
+            onClick={() => setTab("done")}
+          >
+            已結單
+          </button>
+        </div>
+      </div>
+
+      <div className="jMetaGrid">
+        <div className="jMetaCard">
+          <div className="jMetaLabel">今日建立</div>
+          <div className="jMetaValue">{perf.todayCount}</div>
+        </div>
+
+        <div className="jMetaCard">
+          <div className="jMetaLabel">交易所</div>
+          <div className="jMetaValue">Binance</div>
+        </div>
+
+        <div className="jMetaCard">
+          <div className="jMetaLabel">狀態</div>
+          <div className="jMetaValue">草稿</div>
+        </div>
+
+        <div className="jMetaCard">
+          <div className="jMetaLabel">（留空）</div>
+          <div className="jMetaValue"> </div>
+        </div>
+      </div>
+
+      {/* cards + right column */}
+      <div className="jGridRow">
+        <div className="jCardsRow">
+          {filtered.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="jCard"
+              onClick={() => onCardClick(item)}
+              title={removeMode ? "點擊移除" : "點擊查看詳情"}
+            >
+              <div className="jCover">
+  {(item?.cover || item?.coverUrl || item?.image || item?.screenshot) ? (
+    <img src={item.cover || item.coverUrl || item.image || item.screenshot} alt="" />
+  ) : (
+    <div className="jCoverPlaceholder" aria-hidden="true" />
+  )}
+</div>
+              <div className="jCardBody">
+                <div className="jSymbol">{item.symbol}</div>
+                <div className="jMetaLine">
+                  <span>{item.time}</span>
+                  <span className="jDot">•</span>
+                  <span>{item.dir}</span>
+                </div>
+              </div>
+            </button>
+          ))}
+
+          <button type="button" className="jCardAdd" onClick={openCreate}>
+            <div className="jAddIcon">+</div>
+            <div className="jAddText">新增第一張紀錄卡</div>
+          </button>
+        </div>
+
+        <div className="jRightCol">
+          {/* 移除（在績效左邊） */}
+          <button
+            type="button"
+            className={"jRemovePill" + (removeMode ? " isOn" : "")}
+            onClick={() => setRemoveMode((v) => !v)}
+            title="切換移除模式"
+          >
+            移除
+          </button>
+
+          <div className="jPerfCard">
+            <div className="jPerfTitle">績效</div>
+
+            <div className="jPerfRow">
+              <div className="jPerfLabel">今日筆數</div>
+              <div className="jPerfValue">{perf.todayCount}</div>
+            </div>
+
+            <div className="jPerfRow">
+              <div className="jPerfLabel">總筆數</div>
+              <div className="jPerfValue">{perf.total}</div>
+            </div>
+
+            <div className="jPerfHint">（先佔位：之後放 PnL / 勝率 / R 值）</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="jHistory">
+        <div className="jHistoryTitle">歷史</div>
+        <div className="jHistoryHint">（之後放列表/表格/篩選）</div>
+        <div className="jHistoryBox" />
+      </div>
+
+      {/* ===== Create Modal ===== */}
+      {createOpen && (
+        <div className="jModalOverlay isOpen" onMouseDown={() => setCreateOpen(false)}>
+          <div className="jModal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="jModalHead">
+              <div style={{ fontWeight: 800 }}>快速建立</div>
+              <button className="jIconBtn" type="button" onClick={() => setCreateOpen(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="jModalBody">
+              <div style={{ marginBottom: 12, opacity: 0.75 }}>先用假表單頂著，確保 modal 互動正常。</div>
+
+              <div className="jFormRow">
+                <div className="jFormLabel">幣種</div>
+                <input className="jInput" defaultValue="BTC" />
+              </div>
+
+              <div className="jFormRow">
+                <div className="jFormLabel">方向</div>
+                <select className="jInput" defaultValue="Long">
+                  <option>Long</option>
+                  <option>Short</option>
+                </select>
+              </div>
+
+              <div className="jFormRow">
+                <div className="jFormLabel">備註</div>
+                <textarea className="jInput" rows="3" placeholder="可留空" />
+              </div>
+            </div>
+
+            <div className="jModalActions">
+              <button className="jBtn" type="button" onClick={() => setCreateOpen(false)}>
+                取消
+              </button>
+              <button
+                className="jBtn jBtnPrimary"
+                type="button"
+                onClick={() => {
+                  addOneDummy();
+                  setCreateOpen(false);
+                }}
+              >
+                建立
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Detail Modal ===== */}
+      {detailOpen && active && (
+        <div className="jModalOverlay isOpen" onMouseDown={() => setDetailOpen(false)}>
+          <div className="jModal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="jModalHead">
+              <div style={{ fontWeight: 800 }}>{active.symbol}</div>
+              <button className="jIconBtn" type="button" onClick={() => setDetailOpen(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="jModalBody">
+              <div className="jDetailLine">
+                <div className="jDetailLabel">時間</div>
+                <div className="jDetailValue">{active.time}</div>
+              </div>
+              <div className="jDetailLine">
+                <div className="jDetailLabel">方向</div>
+                <div className="jDetailValue">{active.dir}</div>
+              </div>
+              <div className="jDetailLine">
+                <div className="jDetailLabel">備註</div>
+                <div className="jDetailValue">—</div>
+              </div>
+            </div>
+
+            <div className="jModalActions">
+              <button className="jBtn" type="button" onClick={() => setDetailOpen(false)}>
+                關閉
+              </button>
+              <button
+                className="jBtn"
+                type="button"
+                onClick={() => {
+                  // demo: 直接標成已結單
+                  setEntries((prev) => prev.map((x) => (x.id === active.id ? { ...x, status: "done" } : x)));
+                  setDetailOpen(false);
+                }}
+              >
+                標記已結單
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+

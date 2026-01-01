@@ -1,0 +1,154 @@
+/* frontend/src/pages/App/Journal.css */
+
+.jBoardMain { width: 100%; }
+
+.jCardsRow{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+  overflow: visible;
+}
+
+.jCard{
+  position: relative;
+  overflow: visible;
+  transform-style: preserve-3d;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.98);
+  border-radius: 14px;
+  padding: 0;
+  min-width: 0;
+  height: 210px;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform .18s cubic-bezier(.22,1,.36,1),
+    box-shadow .18s cubic-bezier(.22,1,.36,1),
+    background-color .18s cubic-bezier(.22,1,.36,1),
+    border-color .16s ease,
+    filter .16s ease;
+}
+
+.jCard:not(.isRemoveMode):hover{
+  transform: translateY(-12px) scale(1.02);
+  box-shadow:
+    0 30px 60px rgba(15,23,42,0.25),
+    0 0 0 2px rgba(59,130,246,0.35);
+  background-color: rgba(248,250,252,1);
+  cursor: pointer;
+}
+
+.jCard:not(.isRemoveMode):active{
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(15,23,42,.18);
+}
+
+.jCard.isRemoveMode{
+  box-shadow: 0 0 0 2px rgba(239,68,68,0.6);
+  background: rgba(254,242,242,1);
+  border-color: rgba(239,68,68,.7);
+}
+
+.jCover{
+  height: 150px;
+  background: linear-gradient(135deg, rgba(0,0,0,.04), rgba(0,0,0,.01));
+  overflow: hidden;
+  position: relative;
+  pointer-events: none;
+}
+.jCoverImg{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+.jCoverPlaceholder{
+  position:absolute;
+  inset:0;
+  background: linear-gradient(135deg,#f1f3f5,#e9ecef);
+  pointer-events: none;
+}
+
+.jCardBody{
+  padding: 12px 12px 10px;
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  min-height:0;
+}
+.jSymbol{ font-weight: 800; font-size: 12px; letter-spacing:.2px; }
+.jMetaLine{ font-size: 12px; opacity:.65; display:flex; gap:8px; align-items:center; }
+.jDot{ opacity:.5; }
+
+.jCardAdd{
+  height: 210px;
+  border:1px dashed rgba(90,140,255,.45);
+  background: rgba(90,140,255,.08);
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+  padding: 16px;
+  cursor:pointer;
+  transition:
+    transform .18s cubic-bezier(.22,1,.36,1),
+    box-shadow .18s cubic-bezier(.22,1,.36,1);
+}
+.jCardAdd:hover{
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(15,23,42,0.25);
+}
+.jCardAdd:active{
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(15,23,42,.18);
+}
+
+.jRemovePill{
+  border:1px solid rgba(255,70,70,.35);
+  background:#fff;
+  color:#ff4a4a;
+  padding:8px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:800;
+  transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+}
+.jRemovePill.isActive{
+  background: rgba(255,70,70,.10);
+  border-color: rgba(255,70,70,.65);
+  color: #d70000;
+}
+
+.jRemoveMinus{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(15,23,42,.12);
+  pointer-events: none;
+}
+.jRemoveMinus.isVisible{
+  display: flex;
+  pointer-events: auto;
+  color: rgb(239,68,68);
+  border-color: rgba(239,68,68,.4);
+}
+
+.jCard *{ pointer-events: none; }
+.jRemoveMinus{ pointer-events: none; }
+.jRemoveMinus.isVisible{ pointer-events: auto; }

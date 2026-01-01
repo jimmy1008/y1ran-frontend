@@ -1,0 +1,315 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import "./Journal.css";
+
+const LS_KEY = "y1ran_journal_entries_v1";
+
+// Y1RAN_JOURNAL_REWRITE_MARKER_v4
+console.log("[Journal] loaded -> Y1RAN_JOURNAL_REWRITE_MARKER_v4");
+
+function safeJsonParse(raw, fallback) {
+  try {
+    const v = JSON.parse(raw);
+    return v ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function loadEntries() {
+  const raw = localStorage.getItem(LS_KEY);
+  const arr = raw ? safeJsonParse(raw, []) : [];
+  if (Array.isArray(arr) && arr.length) return arr;
+
+  const seeded = [
+    { id: "e1", symbol: "BTC", dir: "Long", time: "2025-12-20 22:16", cover: "", status: "open" },
+    { id: "e2", symbol: "BTC", dir: "Long", time: "2025-12-20 22:00", cover: "", status: "open" },
+    { id: "e3", symbol: "BTC", dir: "Long", time: "2025-12-19 13:22", cover: "", status: "open" },
+  ];
+  localStorage.setItem(LS_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+
+function saveEntries(list) {
+  localStorage.setItem(LS_KEY, JSON.stringify(list));
+}
+
+export default function Journal() {
+  const [sp, setSp] = useSearchParams();
+
+  const [tab, setTab] = useState(sp.get("tab") || "all");
+  const [removeMode, setRemoveMode] = useState(false);
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [active, setActive] = useState(null);
+
+  const [entries, setEntries] = useState(() => loadEntries());
+
+  useEffect(() => {
+    saveEntries(entries);
+  }, [entries]);
+
+  useEffect(() => {
+    setSp((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("tab", tab);
+      return next;
+    });
+  }, [tab, setSp]);
+
+  const filtered = useMemo(() => {
+    if (tab === "done") return entries.filter((e) => e.status === "done");
+    if (tab === "today") {
+      const today = new Date().toISOString().slice(0, 10);
+      return entries.filter((e) => (e.time || "").slice(0, 10) === today);
+    }
+    if (tab === "week") return entries; // TODO: add week filter
+    return entries;
+  }, [entries, tab]);
+
+  const perf = useMemo(() => {
+    const total = entries.length;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayCount = entries.filter((e) => (e.time || "").slice(0, 10) === today).length;
+    return { total, todayCount };
+  }, [entries]);
+
+  function openDetail(item) {
+    setActive(item);
+    setDetailOpen(true);
+  }
+
+  function deleteEntry(id) {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  function markDone(id) {
+    setEntries((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, status: "done" } : e))
+    );
+  }
+
+  function addOneDummy() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mi = String(now.getMinutes()).padStart(2, "0");
+
+    const id = "e" + Math.random().toString(16).slice(2, 8);
+    const item = {
+      id,
+      symbol: "BTC",
+      dir: "Long",
+      time: `${yyyy}-${mm}-${dd} ${hh}:${mi}`,
+      cover: "",
+      status: "open",
+    };
+    setEntries((prev) => [item, ...prev]);
+  }
+
+  function onCardClick(item) {
+    if (removeMode) return;
+    openDetail(item);
+  }
+
+  return (
+    <div className="jBoardMain">
+      <div className="jTopSpan">
+        <div className="jTitle">?ÄË°®Êùø</div>
+
+        <div className="jTabs">
+          <button type="button" className={"jTab" + (tab === "all" ? " isActive" : "")} onClick={() => setTab("all")}>
+            ?®ÈÉ®
+          </button>
+          <button type="button" className={"jTab" + (tab === "today" ? " isActive" : "")} onClick={() => setTab("today")}>
+            ‰ªäÂ§©
+          </button>
+          <button type="button" className={"jTab" + (tab === "week" ? " isActive" : "")} onClick={() => setTab("week")}>
+            ?¨ÈÄ?          </button>
+          <button type="button" className={"jTab" + (tab === "done" ? " isActive" : "")} onClick={() => setTab("done")}>
+            Â∑≤Á???          </button>
+        </div>
+      </div>
+
+      <div className="jMetaGrid">
+        <div className="jMetaCard">
+          <div className="jMetaLabel">‰ªäÊó•Âª∫Á?</div>
+          <div className="jMetaValue">{perf.todayCount}</div>
+        </div>
+        <div className="jMetaCard">
+          <div className="jMetaLabel">‰∫§Ê??Ä</div>
+          <div className="jMetaValue">Binance</div>
+        </div>
+        <div className="jMetaCard">
+          <div className="jMetaLabel">?Ä??/div>
+          <div className="jMetaValue">?âÁ®ø</div>
+        </div>
+        <div className="jMetaCard">
+          <div className="jMetaLabel">ÔºàÁ?Á©∫Ô?</div>
+          <div className="jMetaValue"> </div>
+        </div>
+      </div>
+
+      <div className="jGridRow">
+        <div className="jCardsRow">
+          {filtered.map((item) => {
+            const coverSrc = item?.cover || item?.coverUrl || item?.image || item?.screenshot || "";
+            const cardClass = "jCard" + (removeMode ? " isRemoveMode" : "");
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={cardClass}
+                onClick={() => onCardClick(item)}
+                title={removeMode ? "ÁßªÈô§Ê®°Â?ÔºöÈ? ???™Èô§" : "ÈªûÊ??•Á?Ë©≥Ê?"}
+              >
+                <div className="jCover">
+                  {coverSrc ? (
+                    <img className="jCoverImg" src={coverSrc} alt="" />
+                  ) : (
+                    <div className="jCoverPlaceholder" aria-hidden="true" />
+                  )}
+
+                  <span
+                    role="button"
+                    tabIndex={removeMode ? 0 : -1}
+                    aria-label="?™Èô§?°Á?"
+                    className={"jRemoveMinus" + (removeMode ? " isVisible" : "")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!removeMode) return;
+                      deleteEntry(item.id);
+                    }}
+                    onKeyDown={(e) => {
+                      if (!removeMode) return;
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteEntry(item.id);
+                      }
+                    }}
+                  >
+                    ??                  </span>
+                </div>
+
+                <div className="jCardBody">
+                  <div className="jSymbol">{item.symbol}</div>
+                  <div className="jMetaLine">
+                    <span>{item.time}</span>
+                    <span className="jDot">??/span>
+                    <span>{item.dir}</span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+
+          <button type="button" className="jCardAdd" onClick={() => setCreateOpen(true)}>
+            <div className="jAddIcon">+</div>
+            <div className="jAddText">?∞Â?Á¨¨‰?ÂºµÁ??ÑÂç°</div>
+          </button>
+        </div>
+
+        <div className="jRightCol">
+          <button
+            type="button"
+            className={"jRemovePill" + (removeMode ? " isActive" : "")}
+            onClick={() => setRemoveMode((v) => !v)}
+            title="?áÊ?ÁßªÈô§Ê®°Â?"
+          >
+            ÁßªÈô§
+          </button>
+
+          <div className="jPerfCard">
+            <div className="jPerfTitle">Á∏æÊ?</div>
+            <div className="jPerfRow">
+              <div className="jPerfLabel">‰ªäÊó•Á≠ÜÊï∏</div>
+              <div className="jPerfValue">{perf.todayCount}</div>
+            </div>
+            <div className="jPerfRow">
+              <div className="jPerfLabel">Á∏ΩÁ???/div>
+              <div className="jPerfValue">{perf.total}</div>
+            </div>
+            <div className="jPerfHint">ÔºàÂ?‰Ωî‰?Ôºö‰?ÂæåÊîæ PnL / ?ùÁ? / R ?ºÔ?</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="jHistory">
+        <div className="jHistoryTitle">Ê≠∑Âè≤</div>
+        <div className="jHistoryHint">Ôºà‰?ÂæåÊîæ?óË°®/Ë°®Ê†º/ÁØ©ÈÅ∏Ôº?/div>
+        <div className="jHistoryBox" />
+      </div>
+
+      {createOpen && (
+        <div className="jModalOverlay isOpen" onMouseDown={() => setCreateOpen(false)}>
+          <div className="jModal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="jModalHead">
+              <div style={{ fontWeight: 800 }}>Âø´ÈÄüÂª∫Á´?/div>
+              <button className="jIconBtn" type="button" onClick={() => setCreateOpen(false)}>?</button>
+            </div>
+            <div className="jModalBody">
+              <div className="jFormRow">
+                <div className="jFormLabel">Âπ?®Æ</div>
+                <input className="jInput" defaultValue="BTC" />
+              </div>
+              <div className="jFormRow">
+                <div className="jFormLabel">?πÂ?</div>
+                <select className="jInput" defaultValue="Long">
+                  <option>Long</option>
+                  <option>Short</option>
+                </select>
+              </div>
+              <div className="jFormRow">
+                <div className="jFormLabel">?ôË®ª</div>
+                <textarea className="jInput" rows="3" placeholder="?ØÁ?Á©? />
+              </div>
+            </div>
+
+            <div className="jModalActions">
+              <button className="jBtn" type="button" onClick={() => setCreateOpen(false)}>?ñÊ?</button>
+              <button className="jBtn jBtnPrimary" type="button" onClick={() => { addOneDummy(); setCreateOpen(false); }}>
+                Âª∫Á?
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {detailOpen && active && (
+        <div className="jModalOverlay isOpen" onMouseDown={() => setDetailOpen(false)}>
+          <div className="jModal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="jModalHead">
+              <div style={{ fontWeight: 800 }}>{active.symbol}</div>
+              <button className="jIconBtn" type="button" onClick={() => setDetailOpen(false)}>?</button>
+            </div>
+            <div className="jModalBody">
+              <div className="jDetailLine">
+                <div className="jDetailLabel">?ÇÈ?</div>
+                <div className="jDetailValue">{active.time}</div>
+              </div>
+              <div className="jDetailLine">
+                <div className="jDetailLabel">?πÂ?</div>
+                <div className="jDetailValue">{active.dir}</div>
+              </div>
+              <div className="jDetailLine">
+                <div className="jDetailLabel">?ôË®ª</div>
+                <div className="jDetailValue">??/div>
+              </div>
+            </div>
+
+            <div className="jModalActions">
+              <button className="jBtn" type="button" onClick={() => setDetailOpen(false)}>?úÈ?</button>
+              <button className="jBtn" type="button" onClick={() => { markDone(active.id); setDetailOpen(false); }}>
+                Ê®ôË?Â∑≤Á???              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

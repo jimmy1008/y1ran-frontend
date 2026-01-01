@@ -1,5 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import ProfileModal from "../../components/ProfileModal";
+import { useAuthUser } from "../../hooks/useAuthUser";
 import "./app-shell.css";
 
 const AVATAR_URL =
@@ -33,9 +35,15 @@ function saveBoundExchanges(arr) {
 
 export default function AppShell() {
   const nav = useNavigate();
+  const { user, profile } = useAuthUser();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [profileOverride, setProfileOverride] = useState(null);
   const [exModalOpen, setExModalOpen] = useState(false);
   const [boundEx, setBoundEx] = useState(() => loadBoundExchanges());
+
+  useEffect(() => {
+    console.log("[profileOpen]", profileOpen);
+  }, [profileOpen]);
 
   useEffect(() => {
     saveBoundExchanges(boundEx);
@@ -63,15 +71,32 @@ export default function AppShell() {
     return "exDot";
   }
 
+  const mergedProfile = profileOverride || profile;
+  const displayName =
+    mergedProfile?.display_name ||
+    user?.user_metadata?.name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "—";
+  const avatarUrl = mergedProfile?.avatar_url || AVATAR_URL;
+  const uid = mergedProfile?.id || "—";
+
   return (
     <div className="appShell">
       <aside className="appSidebar">
         <div className="appProfile">
-          <button className="appAvatarBtn" type="button" onClick={() => setProfileOpen(true)}>
-            <img className="appAvatarImg" src={AVATAR_URL} alt="avatar" />
+          <button
+            className="appAvatarBtn"
+            type="button"
+            onClick={() => {
+              console.log("[avatar click] set profileOpen -> true");
+              setProfileOpen(true);
+            }}
+          >
+            <img className="appAvatarImg" src={avatarUrl} alt="avatar" />
           </button>
-          <div className="appName">93</div>
-          <div className="appUid">UID: 00093</div>
+          <div className="appName">{displayName}</div>
+          <div className="appUid">ID: {uid}</div>
         </div>
 
         <div className="appBlock">
@@ -121,7 +146,7 @@ export default function AppShell() {
         </div>
 
         <div className="appFooter">
-          <button className="appQuickBtn" type="button" onClick={() => nav("/app/journal?create=1")}>
+          <button className="appQuickBtn" type="button" onClick={() => nav("/app/journal?create=1")}> 
             快速建立
           </button>
           <div className="appVersion">版本：v0.1.0</div>
@@ -129,34 +154,19 @@ export default function AppShell() {
       </aside>
 
       <main className="appMain">
+        <div className="appMainHeader">
+          <button className="appHomeBtn" type="button" onClick={() => nav("/")}>回首頁</button>
+        </div>
         <div className="appMainInner">
           <Outlet />
         </div>
       </main>
 
-      {profileOpen && (
-        <div className="jModalOverlay appProfileModal" onMouseDown={() => setProfileOpen(false)}>
-          <div className="jModal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-            <div className="jModalHead">
-              <div style={{ fontWeight: 800 }}>個人資料</div>
-              <button className="jIconBtn" type="button" onClick={() => setProfileOpen(false)}>
-                ×
-              </button>
-            </div>
-            <div className="jModalBody">
-              <div style={{ opacity: 0.75 }}>先放占位，之後接登入/帳戶資料。</div>
-            </div>
-            <div className="jModalActions">
-              <button className="jBtn" type="button" onClick={() => setProfileOpen(false)}>
-                關閉
-              </button>
-              <button className="jBtn jBtnPrimary" type="button" onClick={() => setProfileOpen(false)}>
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProfileModal
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onProfileUpdated={(p) => setProfileOverride(p)}
+      />
 
       {exModalOpen && (
         <div className="exModalBackdrop" onMouseDown={() => setExModalOpen(false)}>
@@ -195,3 +205,4 @@ export default function AppShell() {
     </div>
   );
 }
+
