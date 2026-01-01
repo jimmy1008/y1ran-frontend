@@ -10,25 +10,30 @@ export default function Header({ user: userProp }) {
   const user = userProp ?? authUser;
 
   const [open, setOpen] = useState(false);
+  const headerRef = useRef(null);
   const wrapRef = useRef(null);
 
   useEffect(() => {
     const onDown = (e) => {
-      if (!wrapRef.current) return;
-      if (!wrapRef.current.contains(e.target)) setOpen(false);
+      if (!headerRef.current) return;
+      if (headerRef.current.contains(e.target)) return;
+      setOpen(false);
     };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener("pointerdown", onDown, { passive: true });
+    return () => document.removeEventListener("pointerdown", onDown);
   }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
-  const displayName =
-    profile?.display_name ||
-    user?.user_metadata?.name ||
-    user?.user_metadata?.full_name ||
-    user?.email?.split("@")?.[0] ||
-    "User";
+  const displayName = user
+    ? profile?.nickname ||
+      profile?.display_name ||
+      user?.user_metadata?.name ||
+      user?.email ||
+      "…"
+    : loading
+    ? "…"
+    : "登入 / 註冊";
 
   const scrollToApps = (e) => {
     e?.preventDefault?.();
@@ -45,13 +50,21 @@ export default function Header({ user: userProp }) {
   };
 
   const onLogout = async () => {
+    console.log("[logout] start");
     setOpen(false);
-    await supabase.auth.signOut();
-    navigate("/");
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      console.log("[logout] done");
+    } catch (e) {
+      console.error("[logout] failed", e);
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   return (
-    <header className="siteHeader">
+    <header className="siteHeader" ref={headerRef}>
       <div className="siteHeader__inner">
         <div className="siteHeader__brand header-left">
           <img src="/y1ran-logo.png" alt="y1ran" className="header-logo" />
@@ -61,47 +74,43 @@ export default function Header({ user: userProp }) {
           </div>
         </div>
 
-        <nav className="header-nav">
+                <nav className="header-nav">
           <a href="/#apps" onClick={scrollToApps} className="nav-link">
             應用
           </a>
-
-          {!user && !loading ? (
+          <div ref={wrapRef} className="account">
             <button
+              className="account-trigger"
               type="button"
-              className="nav-link"
-              onClick={() => navigate("/login")}
+              disabled={loading}
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                  return;
+                }
+                setOpen((v) => !v);
+              }}
             >
-              登入 / 註冊
+              <span className="account-name">{displayName}</span>
+              <span className="chevron">v</span>
             </button>
-          ) : null}
 
-          {user ? (
-            <div ref={wrapRef} className="account">
-              <button
-                className="account-trigger"
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-              >
-                <span className="account-name">{displayName}</span>
-                <span className="chevron">▾</span>
-              </button>
-
-              {open ? (
-                <div className="account-menu">
-                  <button type="button" onClick={() => navigate("/app/journal")}
-                  >
-                    進入儀表板
-                  </button>
-                  <button type="button" onClick={onLogout} className="danger">
-                    登出
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
+            {user && open ? (
+              <div className="account-menu">
+                <button type="button" onClick={() => navigate("/app/journal")}>
+                  進入儀表板
+                </button>
+                <button type="button" onClick={onLogout} className="danger">
+                  登出
+                </button>
+              </div>
+            ) : null}
+          </div>
         </nav>
       </div>
     </header>
   );
 }
+
+
+

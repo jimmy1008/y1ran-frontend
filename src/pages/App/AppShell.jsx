@@ -42,10 +42,6 @@ export default function AppShell() {
   const [boundEx, setBoundEx] = useState(() => loadBoundExchanges());
 
   useEffect(() => {
-    console.log("[profileOpen]", profileOpen);
-  }, [profileOpen]);
-
-  useEffect(() => {
     saveBoundExchanges(boundEx);
   }, [boundEx]);
 
@@ -79,7 +75,14 @@ export default function AppShell() {
     user?.email?.split("@")[0] ||
     "—";
   const avatarUrl = mergedProfile?.avatar_url || AVATAR_URL;
-  const uid = mergedProfile?.id || "—";
+  const uid =
+    mergedProfile?.uid ||
+    (mergedProfile?.id
+      ? `a${String(mergedProfile.id)
+          .replace(/[^a-f0-9]/gi, "")
+          .slice(0, 6)
+          .toLowerCase()}`
+      : "—");
 
   return (
     <div className="appShell">
@@ -89,7 +92,6 @@ export default function AppShell() {
             className="appAvatarBtn"
             type="button"
             onClick={() => {
-              console.log("[avatar click] set profileOpen -> true");
               setProfileOpen(true);
             }}
           >
@@ -108,13 +110,9 @@ export default function AppShell() {
             <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/portfolio?tab=asset">
               資產
             </NavLink>
-            <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/settings">
-              設定
-            </NavLink>
           </nav>
         </div>
 
-        {/* ===== Exchanges section ===== */}
         <div className="appSide__section">
           <div className="appSide__sectionHead">
             <div className="appSide__sectionTitle">交易所</div>
@@ -154,9 +152,6 @@ export default function AppShell() {
       </aside>
 
       <main className="appMain">
-        <div className="appMainHeader">
-          <button className="appHomeBtn" type="button" onClick={() => nav("/")}>回首頁</button>
-        </div>
         <div className="appMainInner">
           <Outlet />
         </div>

@@ -1,22 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { apiGet } from "../api/client";
+import { useProfile } from "./useProfile";
 
 export function useAuthUser() {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  async function fetchProfile(uid) {
-    if (!uid) return;
-    try {
-      const data = await apiGet("/api/profile");
-      setProfile(data || null);
-    } catch {
-      setProfile(null);
-    }
-  }
 
   useEffect(() => {
     let mounted = true;
@@ -29,10 +19,6 @@ export function useAuthUser() {
       const u = sess?.user ?? null;
       setSession(sess);
       setUser(u);
-
-      if (u) await fetchProfile(u.id);
-      else setProfile(null);
-
       setLoading(false);
     })();
 
@@ -40,9 +26,6 @@ export function useAuthUser() {
       const u = newSession?.user ?? null;
       setSession(newSession ?? null);
       setUser(u);
-
-      if (u) await fetchProfile(u.id);
-      else setProfile(null);
     });
 
     return () => {
@@ -50,6 +33,16 @@ export function useAuthUser() {
       sub?.subscription?.unsubscribe?.();
     };
   }, []);
+
+  const profileState = useProfile(user?.id, { enabled: !!user });
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    setProfile(profileState.profile ?? null);
+  }, [user, profileState.profile]);
 
   return { session, user, profile, loading };
 }

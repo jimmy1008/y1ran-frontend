@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+﻿import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   DndContext,
   DragOverlay,
@@ -66,7 +66,11 @@ function CardView({ item, removeMode, onCardClick, deleteEntry }) {
       className={"jCard" + (removeMode ? " isRemoveMode" : "")}
       onClick={() => {
         if (removeMode) return;
-        onCardClick?.(item);
+        if (typeof onCardClick !== "function") {
+          console.error("[Journal] onCardClick missing/not a function:", onCardClick);
+          return;
+        }
+        onCardClick(item);
       }}
       title={removeMode ? "移除模式" : "點擊查看詳情"}
     >
@@ -83,11 +87,11 @@ function CardView({ item, removeMode, onCardClick, deleteEntry }) {
           onClick={(e) => {
             e.stopPropagation();
             if (!removeMode) return;
-            deleteEntry?.(item.id);
+            deleteEntry(item.id);
           }}
           aria-label="刪除卡片"
         >
-          −
+          -
         </span>
       </div>
 
@@ -102,7 +106,6 @@ function CardView({ item, removeMode, onCardClick, deleteEntry }) {
     </div>
   );
 }
-
 function SortableCard({ item, bucket, removeMode, onCardClick, deleteEntry }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -135,6 +138,7 @@ function SortableCard({ item, bucket, removeMode, onCardClick, deleteEntry }) {
 
 export default function Journal() {
   const [sp, setSp] = useSearchParams();
+  const nav = useNavigate();
 
   const [tab, setTab] = useState(sp.get("tab") || "all");
   const [removeMode, setRemoveMode] = useState(false);
@@ -269,9 +273,15 @@ export default function Journal() {
     setEntries((prev) => [item, ...prev]);
   }
 
-  function onCardClick(item) {
+  const handleCardClick = (item) => {
+    console.log("[Journal] card click", item?.id);
     if (removeMode) return;
     openDetail(item);
+  };
+
+  function handleQuickCreate(e) {
+    console.log("[QuickCreate] enter");
+    setCreateOpen(true);
   }
 
   function handleDragStart(e) {
@@ -312,42 +322,30 @@ export default function Journal() {
   return (
     <div className="jBoardMain">
       <div className="jTopSpan">
-        <div className="jTitle">儀表板</div>
+        <div className="jTitle">儀表板 (DEBUG)</div>
 
-        <div className="jTabs">
-          <button type="button" className={"jTab" + (tab === "all" ? " isActive" : "")} onClick={() => setTab("all")}>
-            全部
+        <div className="jHeaderActions">
+          <button type="button" className="jTab" onClick={() => nav("/")}>
+            回首頁
           </button>
-          <button type="button" className={"jTab" + (tab === "today" ? " isActive" : "")} onClick={() => setTab("today")}>
-            今天
-          </button>
-          <button type="button" className={"jTab" + (tab === "week" ? " isActive" : "")} onClick={() => setTab("week")}>
-            本週
-          </button>
-          <button type="button" className={"jTab" + (tab === "done" ? " isActive" : "")} onClick={() => setTab("done")}>
-            已結單
-          </button>
+          <div className="jTabs">
+            <button type="button" className={"jTab" + (tab === "all" ? " isActive" : "")} onClick={() => setTab("all")}>
+              全部
+            </button>
+            <button type="button" className={"jTab" + (tab === "today" ? " isActive" : "")} onClick={() => setTab("today")}>
+              今天
+            </button>
+            <button type="button" className={"jTab" + (tab === "week" ? " isActive" : "")} onClick={() => setTab("week")}>
+              本週
+            </button>
+            <button type="button" className={"jTab" + (tab === "done" ? " isActive" : "")} onClick={() => setTab("done")}>
+              已結單
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="jMetaGrid">
-        <div className="jMetaCard">
-          <div className="jMetaLabel">今日建立</div>
-          <div className="jMetaValue">{perf.todayCount}</div>
-        </div>
-        <div className="jMetaCard">
-          <div className="jMetaLabel">交易所</div>
-          <div className="jMetaValue">Binance</div>
-        </div>
-        <div className="jMetaCard">
-          <div className="jMetaLabel">狀態</div>
-          <div className="jMetaValue">草稿</div>
-        </div>
-        <div className="jMetaCard">
-          <div className="jMetaLabel">（留空）</div>
-          <div className="jMetaValue"> </div>
-        </div>
-      </div>
+      <div className="journalDivider" />
 
       <DndContext
         sensors={sensors}
@@ -364,15 +362,19 @@ export default function Journal() {
                   item={item}
                   bucket="today"
                   removeMode={removeMode}
-                  onCardClick={onCardClick}
+                  onCardClick={handleCardClick}
                   deleteEntry={deleteEntry}
                 />
               ))}
 
-              <div className="jCard jCardAdd jAddCard" onClick={() => setCreateOpen(true)} role="button" tabIndex={0}>
+              <button
+                className="jCard jCardAdd jAddCard"
+                onClick={handleQuickCreate}
+                type="button"
+              >
                 <div className="jAddIcon">+</div>
                 <div className="jAddText">新增第一張紀錄卡</div>
-              </div>
+              </button>
             </div>
           </SortableContext>
 
@@ -412,7 +414,7 @@ export default function Journal() {
                   item={item}
                   bucket="history"
                   removeMode={removeMode}
-                  onCardClick={onCardClick}
+                  onCardClick={handleCardClick}
                   deleteEntry={deleteEntry}
                 />
               ))}
@@ -501,3 +503,12 @@ export default function Journal() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+

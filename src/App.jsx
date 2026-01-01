@@ -16,7 +16,6 @@ import Profile from "./pages/Settings/Profile";
 import AppShell from "./pages/App/AppShell";
 import Journal from "./pages/App/Journal";
 import Portfolio from "./pages/App/Portfolio";
-import Settings from "./pages/App/Settings";
 import Footer from "./components/Footer";
 
 export default function App() {
@@ -49,7 +48,6 @@ export default function App() {
             <Route index element={<Navigate to="/app/journal" replace />} />
             <Route path="journal" element={<Journal />} />
             <Route path="portfolio" element={<Portfolio />} />
-            <Route path="settings" element={<Settings />} />
           </Route>
 
           <Route
