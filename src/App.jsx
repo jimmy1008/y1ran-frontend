@@ -22,44 +22,49 @@ import Footer from "./components/Footer";
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route element={<RootLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/status" element={<Status />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+      <Routes>
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
-            <Route
-              path="/app"
-              element={
-                <RequireAuth>
-                  <AppShell />
-                </RequireAuth>
-              }
-            >
-              <Route index element={<Navigate to="/app/journal" replace />} />
-              <Route path="journal" element={<Journal />} />
-              <Route path="portfolio" element={<Portfolio />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
+        <Route
+          element={
+            <AuthProvider>
+              <RootLayout />
+            </AuthProvider>
+          }
+        >
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/status" element={<Status />} />
+          <Route path="/login" element={<Login />} />
 
-            <Route
-              path="/settings/profile"
-              element={
-                <RequireAuth>
-                  <Profile />
-                </RequireAuth>
-              }
-            />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/app"
+            element={
+              <RequireAuth>
+                <AppShell />
+              </RequireAuth>
+            }
+          >
+            <Route index element={<Navigate to="/app/journal" replace />} />
+            <Route path="journal" element={<Journal />} />
+            <Route path="portfolio" element={<Portfolio />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
-        </Routes>
-        <Footer />
-      </AuthProvider>
+
+          <Route
+            path="/settings/profile"
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

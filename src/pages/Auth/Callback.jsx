@@ -71,9 +71,6 @@ export default function AuthCallback() {
         if (!cancelled) nav("/app/journal", { replace: true });
       } catch (e) {
         console.error("[auth callback] failed:", e);
-        try {
-          await supabase.auth.signOut();
-        } catch {}
         nav("/login?e=oauth_failed", { replace: true });
       }
     })();
