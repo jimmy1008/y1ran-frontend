@@ -144,7 +144,11 @@ export default function AppShell() {
         </div>
 
         <div className="appFooter">
-          <button className="appQuickBtn" type="button" onClick={() => nav("/app/journal?create=1")}> 
+          <button
+            className="appQuickBtn"
+            type="button"
+            onClick={() => nav("/app/journal?create=1")}
+          >
             快速建立
           </button>
           <div className="appVersion">版本：v0.1.0</div>

@@ -10,18 +10,7 @@ export default function Header({ user: userProp }) {
   const user = userProp ?? authUser;
 
   const [open, setOpen] = useState(false);
-  const headerRef = useRef(null);
   const wrapRef = useRef(null);
-
-  useEffect(() => {
-    const onDown = (e) => {
-      if (!headerRef.current) return;
-      if (headerRef.current.contains(e.target)) return;
-      setOpen(false);
-    };
-    document.addEventListener("pointerdown", onDown, { passive: true });
-    return () => document.removeEventListener("pointerdown", onDown);
-  }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
@@ -36,7 +25,6 @@ export default function Header({ user: userProp }) {
     : "登入 / 註冊";
 
   const scrollToApps = (e) => {
-    e?.preventDefault?.();
     setOpen(false);
 
     if (location.pathname !== "/") {
@@ -50,12 +38,10 @@ export default function Header({ user: userProp }) {
   };
 
   const onLogout = async () => {
-    console.log("[logout] start");
     setOpen(false);
     try {
       const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error) throw error;
-      console.log("[logout] done");
     } catch (e) {
       console.error("[logout] failed", e);
     } finally {
@@ -64,7 +50,7 @@ export default function Header({ user: userProp }) {
   };
 
   return (
-    <header className="siteHeader" ref={headerRef}>
+    <header className="siteHeader">
       <div className="siteHeader__inner">
         <div className="siteHeader__brand header-left">
           <img src="/y1ran-logo.png" alt="y1ran" className="header-logo" />
@@ -74,7 +60,7 @@ export default function Header({ user: userProp }) {
           </div>
         </div>
 
-                <nav className="header-nav">
+        <nav className="header-nav">
           <a href="/#apps" onClick={scrollToApps} className="nav-link">
             應用
           </a>

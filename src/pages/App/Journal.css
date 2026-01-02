@@ -1,1059 +1,598 @@
-/* Y1RAN_JOURNAL_CSS_MARKER_v4 */
+﻿/* ===== Journal layout (fix card sizing + prevent image blow-up) ===== */
 
-:root{
-  --j-text: #0f172a;
-  --j-sub: rgba(15,23,42,.62);
-  --j-border: rgba(15,23,42,.08);
-  --j-bgSoft: rgba(15,23,42,.02);
-  --j-shadow: 0 18px 40px rgba(15,23,42,.12);
-  --j-shadow-strong: 0 30px 70px rgba(15,23,42,.22);
-}
+.jBoardMain { width: 100%; }
 
-.jBoardMain{
-  padding: 22px 22px 28px;
-  color: var(--j-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-}
-
+/* top */
 .jTopSpan{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 16px;
-  margin-bottom: 14px;
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:16px; padding: 6px 2px 12px;
 }
-.jTitle{
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: .2px;
-}
-
-.jTabs{
-  display:flex;
-  gap: 6px;
-  padding: 5px;
-  background: rgba(15,23,42,.035);
-  border: 1px solid rgba(15,23,42,.07);
-  border-radius: 999px;
-}
+.jTitle{ font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+.jTabs{ display:flex; gap:10px; flex-wrap:wrap; }
 .jTab{
-  border: 0;
-  background: transparent;
-  padding: 7px 11px;
-  font-size: 12.5px;
-  font-weight: 800;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease, border-color .16s ease;
+  border:1px solid rgba(0,0,0,.08);
+  background:#fff;
+  padding:8px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:600;
 }
-.jTab:hover{
-  background: rgba(59,130,246,.10);
-  box-shadow: 0 12px 18px rgba(15,23,42,.10);
-  transform: translateY(-1px);
-}
-.jTab:active{
-  transform: translateY(0px);
-}
-.jTab.isActive{
-  background: rgba(59,130,246,.16);
+.jTab.isActive{ background: rgba(90,140,255,.10); border-color: rgba(90,140,255,.25); }
+
+.jTopDivider{
+  height: 1px;
+  background: #e5e7eb;
+  margin: 10px 0 16px;
 }
 
+/* meta */
 .jMetaGrid{
   display:grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin: 10px 0 14px;
+  gap: 18px;
+  margin: 6px 0 18px;
 }
 .jMetaCard{
-  background: rgba(255,255,255,.9);
-  border: 1px solid var(--j-border);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border:1px solid rgba(0,0,0,.06);
+  background:#fff;
+  border-radius:16px;
+  padding:16px 18px;
+  min-height:86px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
-.jMetaLabel{
-  font-size: 12px;
-  opacity: .6;
-  margin-bottom: 6px;
-}
-.jMetaValue{
-  font-size: 17px;
-  font-weight: 900;
-}
+.jMetaLabel{ font-size: 12px; opacity:.65; margin-bottom:6px; }
+.jMetaValue{ font-size: 18px; font-weight: 800; }
 
+/* main row */
 .jGridRow{
   display:grid;
-  grid-template-columns: 1fr 300px;
-  gap: 16px;
-  align-items:start;
+  grid-template-columns: 1fr 360px;  /* right fixed */
+  gap: 22px;
+  align-items: start;               /* 重要：不要讓右欄被撐到置底 */
 }
 
+.jLeftCol{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.jSectionTitle{
+  font-weight: 900;
+  margin: 12px 0 6px;
+}
+
+/* cards grid */
 .jCardsRow{
-  display:flex;
-  flex-wrap:wrap;
-  gap: 16px;
-}
-
-.jCard,
-.jCardAdd{
-  width: 300px;
-  border-radius: 18px;
-  border: 1px solid var(--j-border);
-  background: #fff;
-  padding: 0;
-  overflow: hidden;
-}
-
-.jCard{
-  position: relative;
-  text-align:left;
-  cursor:pointer;
-  transform: translateY(0) scale(1);
-  outline: 2px solid rgba(59,130,246,0);
-  box-shadow: 0 0 0 rgba(0,0,0,0);
-  transition:
-    transform .18s cubic-bezier(.22,1,.36,1),
-    box-shadow .18s cubic-bezier(.22,1,.36,1),
-    border-color .18s ease,
-    background-color .18s ease,
-    outline-color .18s ease,
-    filter .18s ease;
-}
-
-/* hover：選中感 */
-.jCard:hover{
-  transform: translateY(-12px) scale(1.02);
-  box-shadow:
-    0 30px 60px rgba(15,23,42,.25),
-    0 0 0 2px rgba(59,130,246,.35);
-  border-color: rgba(59,130,246,.22);
-  background: rgba(248,250,252,1);
-  filter: saturate(1.05);
-}
-
-.jCard:active{
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 18px 40px rgba(15,23,42,.14);
-}
-
-/* remove mode */
-.jCard.isRemoveMode{
-  box-shadow: 0 0 0 2px rgba(239,68,68,.6);
-  border-color: rgba(239,68,68,.45);
-  background: rgba(254,242,242,1);
-}
-.jCard.isRemoveMode:hover{
-  box-shadow: 0 26px 60px rgba(239,68,68,.14), 0 0 0 2px rgba(239,68,68,.34);
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
 }
 
 .jCover{
-  height: 132px;
-  position: relative;
-  pointer-events: none;
+  /* 關鍵：固定 cover 高度 + overflow hidden */
+  height: 150px;
+  background: linear-gradient(135deg, rgba(0,0,0,.04), rgba(0,0,0,.015));
+  overflow:hidden;
 }
-.jCoverImg{
+
+.jCover img{
   width:100%;
   height:100%;
-  object-fit: cover;
   display:block;
-  pointer-events: none;
-}
-.jCoverPlaceholder{
-  width:100%;
-  height:100%;
-  background: linear-gradient(135deg, rgba(15,23,42,.06), rgba(15,23,42,.03));
-  pointer-events: none;
+  object-fit: cover;     /* 關鍵：裁切，不依原圖比例撐高 */
+  object-position:center;
 }
 
+/* body */
 .jCardBody{
-  padding: 12px 14px 14px;
-}
-.jSymbol{
-  font-size: 14px;
-  font-weight: 950;
-  margin-bottom: 6px;
-}
-.jMetaLine{
-  font-size: 12px;
-  color: var(--j-sub);
+  padding: 12px 12px 10px;
   display:flex;
+  flex-direction:column;
   gap: 6px;
-  align-items:center;
+  min-height:0;
 }
-.jDot{ opacity: .7; }
+.jSymbol{ font-weight: 800; font-size: 12px; letter-spacing:.2px; }
+.jMetaLine{ font-size: 12px; opacity:.65; display:flex; gap:8px; align-items:center; }
+.jDot{ opacity:.5; }
 
-/* 移除模式紅色減號 */
-.jRemoveMinus{
-  position:absolute;
-  top: 10px;
-  right: 10px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-weight: 900;
-  font-size: 18px;
-  border: 1px solid rgba(239,68,68,.28);
-  background: rgba(255,255,255,.95);
-  color: rgb(239,68,68);
-  box-shadow: 0 10px 24px rgba(239,68,68,.14);
-  cursor: pointer;
-  user-select:none;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
-}
-.jRemoveMinus.isVisible{
-  display:flex;
-}
-.jRemoveMinus:hover{
-  background: rgba(239,68,68,.12);
-}
-
+/* add card */
 .jCardAdd{
-  background: rgba(59,130,246,.05);
-  border-color: rgba(59,130,246,.22);
+  height: 210px;                 /* 跟卡片同高 */
+  width: 100%;
+  border:1px dashed rgba(90,140,255,.45);
+  background: rgba(90,140,255,.08);
+  border-radius:18px;
+  cursor:pointer;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap: 10px;
-  cursor:pointer;
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background-color .16s ease;
-}
-.jCardAdd:hover{
-  transform: translateY(-10px);
-  box-shadow: 0 26px 60px rgba(15,23,42,.18);
-  border-color: rgba(59,130,246,.35);
-  background: rgba(59,130,246,.10);
+  gap: 8px;
+  padding: 16px;
 }
 .jAddIcon{
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  font-size: 18px;
-  display:grid;
-  place-items:center;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.9);
-  font-weight: 900;
+  width:34px; height:34px; border-radius:999px;
+  border:1px solid rgba(0,0,0,.10);
+  background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900;
 }
-.jAddText{
-  font-size: 13px;
-  font-weight: 900;
-}
+.jAddText{ font-weight:700; font-size: 12px; }
 
+/* right column */
 .jRightCol{
   position: sticky;
   top: 18px;
   align-self: start;
-  display:flex;
-  flex-direction: column;
-  gap: 12px;
+  min-width:0;
 }
-
 .jRemovePill{
-  align-self:flex-start;
-  border:1px solid rgba(239,68,68,.25);
-  background: rgba(255,255,255,.9);
-  color: rgba(239,68,68,.95);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-weight: 900;
-  font-size: 12px;
+  border:1px solid rgba(255,70,70,.35);
+  background:#fff;
+  color:#ff4a4a;
+  padding:8px 14px;
+  border-radius:999px;
   cursor:pointer;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease, border-color .12s ease;
+  font-weight:800;
+  margin-bottom: 10px;
 }
-.jRemovePill:hover{
-  box-shadow: 0 12px 22px rgba(239,68,68,.12);
-  transform: translateY(-1px);
-  background: rgba(239,68,68,.06);
-}
-.jRemovePill.isActive{
-  background: rgba(239,68,68,.10);
-  border-color: rgba(239,68,68,.35);
-}
+.jRemovePill.isOn{ background: rgba(255,70,70,.08); }
 
 .jPerfCard{
-  border: 1px solid var(--j-border);
-  border-radius: 18px;
-  padding: 14px 16px;
-  background: rgba(255,255,255,.9);
+  border:1px solid rgba(0,0,0,.06);
+  background:#fff;
+  border-radius:18px;
+  padding: 16px 16px 14px;
 }
-.jPerfTitle{
-  font-size: 14px;
-  font-weight: 950;
-  margin-bottom: 8px;
-}
-.jPerfRow{
-  display:flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed rgba(15,23,42,.08);
-  font-size: 13px;
-}
-.jPerfRow:last-of-type{
-  border-bottom: 0;
-}
-.jPerfLabel{
-  opacity: .62;
-}
-.jPerfValue{
-  font-weight: 900;
-}
-.jPerfHint{
-  margin-top: 10px;
-  opacity: .55;
-  font-size: 12px;
-}
+.jPerfTitle{ font-weight: 900; margin-bottom: 10px; }
+.jPerfRow{ display:flex; justify-content:space-between; padding: 10px 0; border-top: 1px solid rgba(0,0,0,.06); }
+.jPerfLabel{ opacity:.65; font-size: 12px; }
+.jPerfValue{ font-weight: 900; }
+.jPerfHint{ opacity:.55; font-size: 12px; padding-top: 10px; }
 
-.jHistory{
-  margin-top: 18px;
-  border-radius: 18px;
-  border: 1px solid var(--j-border);
-  background: #fff;
-  padding: 14px;
-}
-.jHistoryTitle{
-  font-weight: 900;
-}
-.jHistoryHint{
-  opacity: .55;
-  font-size: 12px;
-  margin-top: 2px;
-}
-.jHistoryBox{
-  margin-top: 10px;
-  padding: 14px;
-}
-
-/* ===== History timeline ===== */
-.jHistoryEmpty{
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px dashed rgba(15,23,42,.12);
-  background: rgba(15,23,42,.02);
-  color: rgba(15,23,42,.55);
-  font-weight: 700;
-}
-
-.jHistoryList{
-  display: grid;
-  gap: 10px;
-}
-
-.jHistoryRow{
-  display: grid;
-  grid-template-columns: 16px 1fr;
-  gap: 10px;
-  align-items: start;
-  text-align: left;
-  width: 100%;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(15,23,42,.08);
-  background: rgba(255,255,255,.75);
-  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
-}
-
-.jHistoryDot{
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  margin-top: 6px;
-  background: rgba(59,130,246,.55);
-  box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-}
-
-.jHistoryRow:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(15,23,42,.12);
-  border-color: rgba(59,130,246,.22);
-  background: rgba(248,250,252,.9);
-}
-
-.jHistoryTop{
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-
-.jHistorySym{
-  font-weight: 950;
-  letter-spacing: .2px;
-}
-.jHistoryDir{
-  font-weight: 800;
-  color: rgba(15,23,42,.62);
-}
-.jHistoryTime{
-  margin-left: auto;
-  font-size: 12px;
-  color: rgba(15,23,42,.55);
-}
-
-.jHistoryMeta{
-  margin-top: 6px;
-}
-
-.jHistoryStatus{
-  display: inline-flex;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(15,23,42,.03);
-  color: rgba(15,23,42,.65);
-}
-
-.jHistoryStatus.isDone{
-  border-color: rgba(16,185,129,.22);
-  background: rgba(16,185,129,.08);
-  color: rgba(16,185,129,.9);
-}
-
-.jHistoryStatus.isOpen{
-  border-color: rgba(59,130,246,.18);
-  background: rgba(59,130,246,.06);
-  color: rgba(59,130,246,.9);
-}
-
+/* history */
+/* modals (basic) */
 .jModalOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,.35);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 20px;
-  z-index: 50;
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.35);
+  display:flex; align-items:center; justify-content:center;
+  padding: 24px;
+  z-index: 9999;
 }
 .jModal{
-  width: 520px;
-  max-width: 96vw;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid rgba(15,23,42,.10);
-  box-shadow: 0 40px 120px rgba(15,23,42,.30);
+  width:min(560px, 92vw);
+  border-radius:18px;
+  background:#fff;
   overflow:hidden;
+  border:1px solid rgba(0,0,0,.12);
 }
-.jModalHead{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding: 14px 14px;
-  border-bottom: 1px solid rgba(15,23,42,.08);
-}
-.jIconBtn{
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(15,23,42,.03);
-  cursor:pointer;
-  font-weight: 900;
-}
-.jModalBody{ padding: 14px; }
-.jFormRow{ display:grid; grid-template-columns: 90px 1fr; gap: 10px; align-items:center; margin-bottom: 10px; }
-.jFormLabel{ opacity: .7; font-weight: 700; font-size: 13px; }
-.jInput{
-  border: 1px solid rgba(15,23,42,.12);
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255,255,255,1);
-}
-.jModalActions{
-  display:flex;
-  justify-content:flex-end;
-  gap: 10px;
-  padding: 14px;
-  border-top: 1px solid rgba(15,23,42,.08);
-}
-.jBtn{
-  border: 1px solid rgba(15,23,42,.12);
-  background: rgba(15,23,42,.03);
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 800;
-  cursor:pointer;
-}
-.jBtnPrimary{
-  background: rgba(59,130,246,.12);
-  border-color: rgba(59,130,246,.22);
-}
-.jDetailLine{
-  display:flex;
-  justify-content:space-between;
-  padding: 10px 0;
-  border-bottom: 1px dashed rgba(15,23,42,.10);
-}
-.jDetailLabel{ opacity: .65; font-weight: 700; }
-.jDetailValue{ font-weight: 900; }
+.jModalHead{ display:flex; justify-content:space-between; align-items:center; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,.06); }
+.jModalBody{ padding: 14px 16px; }
+.jModalActions{ display:flex; justify-content:flex-end; gap:10px; padding: 14px 16px; border-top: 1px solid rgba(0,0,0,.06); }
+.jIconBtn{ border:none; background:transparent; cursor:pointer; font-size: 22px; line-height: 1; }
+.jBtn{ border:1px solid rgba(0,0,0,.10); background:#fff; padding: 10px 14px; border-radius: 12px; cursor:pointer; font-weight: 800; }
+.jBtnPrimary{ background: rgba(90,140,255,.12); border-color: rgba(90,140,255,.25); }
+.jInput{ width:100%; border:1px solid rgba(0,0,0,.10); border-radius:12px; padding: 10px 12px; }
+.jFormRow{ display:grid; grid-template-columns: 72px 1fr; gap: 10px; align-items:center; margin: 10px 0; }
+.jFormLabel{ font-size: 12px; opacity:.65; }
 
-@media (max-width: 1100px){
+/* responsive */
+@media (max-width: 1220px){
+  .jCardsRow{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 980px){
   .jGridRow{ grid-template-columns: 1fr; }
-  .jMetaGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .jCard, .jCardAdd{ width: min(360px, 100%); }
-  .jRightCol{ position: static; top: auto; }
+  .jRightCol{ position: static; }
+  .jCardsRow{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 620px){
+  .jMetaGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .jCardsRow{ grid-template-columns: 1fr; }
 }
 
-/* ===== FORCE: jCard hover feedback (top + history) ===== */
-.jCard{
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background-color .16s ease;
-  will-change: transform;
-}
-
-.jCard:hover{
-  transform: translateY(-10px) scale(1.015);
-  box-shadow: 0 18px 50px rgba(15,23,42,.14), 0 0 0 2px rgba(59,130,246,.18);
-  border-color: rgba(59,130,246,.28);
-  background-color: rgba(248,250,252,1);
-}
-
-.jCard:active{
-  transform: translateY(-6px) scale(1.01);
-}
-
-.jCard:hover .jCoverImg,
-.jCard:hover .jCoverPlaceholder{
-  filter: brightness(1.02) contrast(1.03);
-}
-
-.jCardsRowHistory{
-  margin-top: 10px;
-}
-
-/* ===== HISTORY SECTION: flat divider style ===== */
-.jHistoryBox{
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.jHistoryTitle{
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  margin-bottom: 12px;
-}
-
-/* history cards slightly calmer */
-.jCardHistory{
-  transform: none;
-}
-
-.jCardHistory:hover{
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 12px 32px rgba(15,23,42,.12);
-}
-
-.jCardsRowHistory{
-  gap: 16px;
-}
-
+/* ===== Journal interactions ===== */
 .jCardAdd{
-  margin-bottom: 12px;
+  transition:
+    transform .18s cubic-bezier(.22,1,.36,1),
+    box-shadow .18s cubic-bezier(.22,1,.36,1);
+  cursor: pointer;
+}
+.jCardAdd:hover{
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(15,23,42,0.25);
+}
+.jCardAdd:active{
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(15,23,42,.18);
 }
 
-/* ===== PATCH: History container should NOT look like a card ===== */
-
-/* 1) 砍掉歷史區塊外框（你現在看到的外框通常在這層） */
-.jHistory{
-  margin-top: 28px;
-  padding: 0;
-  background: transparent;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-/* 2) 如果舊版把 jHistory 內部包了一層卡片樣式，這裡也強制扁平 */
-.jHistory > *{
-  box-shadow: none;
-}
-
-/* 3) 歷史標題區：降權 + 不要像卡片 header */
-.jHistoryTitle{
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  margin: 0 0 10px 0;
-}
-
-/* 4) 只用灰線隔開（真正的分隔感在這） */
-.jHistoryBox{
-  margin-top: 0;
-  padding-top: 14px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-/* 5) 歷史卡片間距（看起來像日誌流） */
-.jCardsRowHistory{
-  gap: 16px;
-}
-
-/* =========================
-   UI TUNE PATCH v1
-   (layout / typography / spacing)
-   ========================= */
-.jTabs{
-  padding: 5px;
-  gap: 6px;
-  background: rgba(15,23,42,.035);
-  border-color: rgba(15,23,42,.07);
-}
-.jTab{
-  padding: 7px 11px;
-  font-size: 12.5px;
-  font-weight: 800;
-}
-.jTab.isActive{
-  background: rgba(59,130,246,.16);
-}
-.jMetaCard{
-  padding: 14px 16px;
-  border-color: var(--j-border);
-}
-.jMetaLabel{
-  font-size: 12px;
-  opacity: .6;
-  margin-bottom: 6px;
-}
-.jMetaValue{
-  font-size: 17px;
-  font-weight: 900;
-}
-.jGridRow{
-  grid-template-columns: 1fr 300px;
-  gap: 16px;
-}
-.jRightCol{
-  position: sticky;
-  top: 18px;
-  align-self: start;
-}
-.jCardsRow{
-  gap: 16px;
-}
-.jCard, .jCardAdd{
-  width: 300px;
-  border-radius: 18px;
-  border-color: var(--j-border);
-}
-.jCover{
-  height: 132px;
-}
-.jCardBody{
-  padding: 12px 14px 14px;
-}
-.jSymbol{
-  font-size: 14px;
-  font-weight: 950;
-  margin-bottom: 6px;
-}
-.jMetaLine{
-  font-size: 12px;
-  color: var(--j-sub);
-  opacity: 1;
-}
-.jCard{
-  outline-width: 2px;
-  outline-style: solid;
-  outline-color: rgba(59,130,246,0);
-  box-shadow: 0 0 0 rgba(0,0,0,0);
-}
-.jCard:hover{
-  transform: translateY(-10px) scale(1.018);
-  box-shadow:
-    0 26px 60px rgba(15,23,42,.18),
-    0 0 0 2px rgba(59,130,246,.28);
-  background: rgba(248,250,252,.75);
-}
 .jCard.isRemoveMode{
-  outline-color: rgba(239,68,68,.55);
-  border-color: rgba(239,68,68,.28);
+  border-color: rgba(239,68,68,.45);
+  background: rgba(239,68,68,.04);
 }
 .jCard.isRemoveMode:hover{
-  box-shadow:
-    0 26px 60px rgba(239,68,68,.14),
-    0 0 0 2px rgba(239,68,68,.34);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.55);
 }
+
 .jRemoveMinus{
-  width: 32px;
-  height: 32px;
+  position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 18px;
-  border-color: rgba(239,68,68,.28);
-  background: rgba(255,255,255,.95);
-}
-.jRemoveMinus:hover{
-  background: rgba(239,68,68,.12);
-}
-.jCardAdd{
-  background: rgba(59,130,246,.05);
-  border-color: rgba(59,130,246,.22);
-}
-.jAddIcon{
-  width: 36px;
-  height: 36px;
-  font-size: 18px;
-}
-.jAddText{
-  font-size: 13px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
   font-weight: 900;
+  line-height: 1;
+  border: 1px solid rgba(239,68,68,.35);
+  background: rgba(255,255,255,.92);
+  color: rgba(239,68,68,.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease, transform .12s ease, background-color .12s ease, border-color .12s ease;
 }
-.jPerfCard{
-  border-color: var(--j-border);
-  border-radius: 18px;
-  padding: 14px 16px;
+.jRemoveMinus.isVisible{ opacity: 1; pointer-events: auto; }
+.jRemoveMinus:hover{
+  background: rgba(239,68,68,.10);
+  border-color: rgba(239,68,68,.45);
+  transform: translateY(-1px);
 }
-.jPerfTitle{
-  font-size: 14px;
-  font-weight: 950;
+.jRemoveMinus:active{ transform: translateY(0); }
+
+.jCover img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
 }
-.jPerfRow{
-  font-size: 13px;
-  padding: 8px 0;
-  border-bottom: 1px dashed rgba(15,23,42,.08);
-}
-.jPerfRow:last-of-type{
-  border-bottom: 0;
-}
-.jPerfLabel{
-  opacity: .62;
-}
-.jPerfHint{
-  margin-top: 10px;
-  opacity: .55;
-}
-.jHistory{
-  border-radius: 18px;
-  border-color: var(--j-border);
-}
-.jHistoryBox{
-  height: auto;
-}
-@media (max-width: 1100px){
-  .jGridRow{ grid-template-columns: 1fr; }
-  .jRightCol{ position: static; top: auto; }
-  .jCard, .jCardAdd{ width: min(360px, 100%); }
+.jCoverPlaceholder{
+  background: linear-gradient(135deg, rgba(0,0,0,.04), rgba(0,0,0,.015));
+  pointer-events: none;
 }
 
-/* ===== PATCH: unify card sizing + stronger hover feedback ===== */
-
-/* 讓上方卡片列 + 歷史卡片列用同一套排版 */
-.jCardsRow,
-.jHistoryBox {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  align-items: stretch;
+.jRemovePill.isActive,
+.jRemovePill.isOn{
+  background: rgba(255,70,70,.08);
+  border-color: rgba(255,70,70,.35);
 }
 
-/* 統一卡片尺寸（上/下都吃得到） */
-.jCardsRow .jCard,
-.jHistoryBox .jCard,
-.jCardsRow .jCardAdd,
-.jHistoryBox .jCardAdd {
-  width: 260px;
-  height: 170px;
+/* ===== Card glow (restore original) ===== */
+.jCard{
+  position: relative;
+  border: 1px solid rgba(15,23,42,.08);
   border-radius: 14px;
-}
-
-/* 統一封面高度，避免上/下看起來比例不一 */
-.jCard .jCover,
-.jCardAdd .jCover {
-  height: 105px;
-}
-
-/* 卡片內容對齊：避免底部文字把卡片撐高/擠壓 */
-.jCard {
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  width: 100%;
+  height: 210px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: rgba(255,255,255,.98);
+  transition:
+    transform .18s cubic-bezier(.22,1,.36,1),
+    box-shadow .18s cubic-bezier(.22,1,.36,1),
+    background-color .18s cubic-bezier(.22,1,.36,1),
+    border-color .16s ease;
 }
 
-/* 內容區固定 padding（視覺一致） */
-.jCard .jCardBody {
-  padding: 12px 14px;
-}
-
-/* ===== 更明顯的 hover：位移 + 放大 + 光暈 + 外框 ===== */
-.jCard,
-.jCardAdd {
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
-  cursor: pointer;
-}
-
-.jCard:hover,
-.jCardAdd:hover {
-  transform: translateY(-10px) scale(1.03);
+.jCard:not(.isRemoveMode):hover{
+  transform: translateY(-12px) scale(1.02);
   box-shadow:
-    0 22px 45px rgba(15, 23, 42, 0.14),
-    0 0 0 3px rgba(59, 130, 246, 0.20);
-  border-color: rgba(59, 130, 246, 0.35);
-  background-color: rgba(248, 250, 252, 0.9);
+    0 30px 60px rgba(15,23,42,0.25),
+    0 0 0 2px rgba(59,130,246,0.35);
+  background-color: rgba(248,250,252,1);
 }
 
-.jCard:active,
-.jCardAdd:active {
+.jCard:not(.isRemoveMode):active{
   transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(15,23,42,.18);
 }
 
-/* 鍵盤操作也要有明顯回饋 */
-.jCard:focus-visible,
-.jCardAdd:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28);
-  border-color: rgba(59, 130, 246, 0.45);
+/* cover stays neutral but a bit lighter */
+.jCover{
+  height: 150px;
+  background: linear-gradient(135deg, rgba(0,0,0,.035), rgba(0,0,0,.01));
+  overflow:hidden;
 }
 
-/* removeMode 下維持紅框，但 hover 仍保留“抬起感” */
-.jCard.isRemoveMode {
-  border-color: rgba(239, 68, 68, 0.55) !important;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18) !important;
-}
-.jCard.isRemoveMode:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.12),
-    0 0 0 3px rgba(239, 68, 68, 0.22) !important;
-}
-
-/* ===== PATCH v2: BIG cards + obvious lift + glow (force override) ===== */
-
-/* 統一上/下容器排版 */
-.jCardsRow,
-.jHistoryBox {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 22px !important;
-  align-items: stretch !important;
-}
-
-/* 卡片放大（上/下都套用） */
-.jCardsRow .jCard,
-.jHistoryBox .jCard,
-.jCardsRow .jCardAdd,
-.jHistoryBox .jCardAdd {
-  width: 320px !important;
-  height: 210px !important;
-  border-radius: 16px !important;
-}
-
-/* 封面也放大，比例一致 */
-.jCard .jCover,
-.jCardAdd .jCover {
-  height: 130px !important;
-}
-
-/* 基本外觀 */
-.jCard,
-.jCardAdd {
-  border: 1px solid rgba(15, 23, 42, 0.10) !important;
-  background: #fff !important;
-  cursor: pointer !important;
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease !important;
-  will-change: transform, box-shadow !important;
-}
-
-/* 這句很關鍵：很多時候是父層 overflow:hidden 把陰影吃掉 */
-.jCardsRow,
-.jHistoryBox,
-.jGridRow {
-  overflow: visible !important;
-}
-
-/* ===== 超明顯 hover：上抬 + 放大 + 光暈 + 外框 ===== */
-.jCard:hover,
-.jCardAdd:hover {
-  transform: translateY(-14px) scale(1.05) !important;
-  box-shadow:
-    0 28px 70px rgba(15, 23, 42, 0.22),
-    0 0 0 4px rgba(59, 130, 246, 0.28),
-    0 0 34px rgba(59, 130, 246, 0.18) !important;
-  border-color: rgba(59, 130, 246, 0.55) !important;
-  background-color: rgba(248, 250, 252, 0.92) !important;
-}
-
-.jCard:active,
-.jCardAdd:active {
-  transform: translateY(-9px) scale(1.03) !important;
-}
-
-/* removeMode：紅框也要保持抬起 + 紅光暈 */
-.jCard.isRemoveMode {
-  border-color: rgba(239, 68, 68, 0.60) !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
-}
-.jCard.isRemoveMode:hover {
-  transform: translateY(-12px) scale(1.04) !important;
-  box-shadow:
-    0 26px 62px rgba(15, 23, 42, 0.18),
-    0 0 0 4px rgba(239, 68, 68, 0.26),
-    0 0 30px rgba(239, 68, 68, 0.16) !important;
-}
-
-/* ===== PATCH v3: refined lift + tight glow ===== */
-
-.jCard,
-.jCardAdd {
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
-  will-change: transform, box-shadow !important;
-}
-
-.jCard::after,
-.jCardAdd::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
+.jCoverPlaceholder{
+  background: linear-gradient(135deg, rgba(0,0,0,.035), rgba(0,0,0,.012));
   pointer-events: none;
-  opacity: 0;
-  filter: blur(8px);
-  transition: opacity .16s ease;
 }
 
-.jCard:hover,
-.jCardAdd:hover {
-  transform: translateY(-8px) scale(1.02) !important;
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.16),
-    0 0 0 2px rgba(59, 130, 246, 0.22) !important;
-  border-color: rgba(59, 130, 246, 0.35) !important;
+.jCover img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit: cover;
+  object-position:center;
+  pointer-events:none;
 }
 
-.jCard:hover::after,
-.jCardAdd:hover::after {
-  opacity: 1;
-  background: radial-gradient(
-    circle at 30% 20%,
-    rgba(59, 130, 246, 0.22),
-    rgba(59, 130, 246, 0.00) 60%
-  );
+/* ===== DnD ===== */
+.jCardWrap{
+  touch-action: none;
 }
 
-.jCard.isRemoveMode:hover {
-  transform: translateY(-7px) scale(1.02) !important;
-  box-shadow:
-    0 16px 36px rgba(15, 23, 42, 0.14),
-    0 0 0 2px rgba(239, 68, 68, 0.22) !important;
-  border-color: rgba(239, 68, 68, 0.38) !important;
-}
-.jCard.isRemoveMode:hover::after {
-  opacity: 1;
-  background: radial-gradient(
-    circle at 30% 20%,
-    rgba(239, 68, 68, 0.18),
-    rgba(239, 68, 68, 0.00) 60%
-  );
-}
-
-.jCard.isDragging {
-  opacity: 0.55 !important;
-  transform: scale(0.99) !important;
-}
-.jCard.isDropTarget {
-  box-shadow: 0 0 0 2px rgba(59,130,246,0.30), 0 10px 26px rgba(15,23,42,0.10) !important;
-}
-
-/* pointer handling: 卡片可拖可點，cover 不攔截 */
 .jCard{
-  pointer-events: auto !important;
-}
-.jCover, .jCoverImg, .jCoverPlaceholder{
-  pointer-events: none;
+  touch-action: none;
 }
 
-/* ===== Grid layout for sortable cards ===== */
-.jCardGrid{
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+.jCardWrap.isDragging{
+  opacity: 0.55;
+}
+
+.jDragOverlay{
+  border-radius: 18px;
+  box-shadow:
+    0 40px 110px rgba(0,0,0,0.18),
+    0 0 34px rgba(59,130,246,0.32);
+  transform: scale(1.02);
+}
+
+/* DnD sections use jGrid */
+.jGrid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
   gap: 18px;
   align-items: start;
 }
-.jCardWrapper{
-  width: 100%;
+
+@media (max-width: 1400px){
+  .jGrid{ grid-template-columns: repeat(3, minmax(220px, 1fr)); }
 }
-.jCardGrid .jCard,
-.jCardGrid .jCardAdd{
-  width: 100% !important;
-  height: 180px !important;
-  border-radius: 16px !important;
+@media (max-width: 1100px){
+  .jGrid{ grid-template-columns: repeat(2, minmax(220px, 1fr)); }
 }
-.jCardGrid .jCard .jCover,
-.jCardGrid .jCardAdd .jCover{
-  height: 120px !important;
+@media (max-width: 820px){
+  .jGrid{ grid-template-columns: 1fr; }
 }
 
-/* Hover/drag tuned for grid */
-.jCardGrid .jCard:hover{
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(15,23,42,.12);
-}
-.jCardGrid .jCard.isDragging{
-  opacity: 0.92;
-  box-shadow: 0 22px 60px rgba(59,130,246,.18);
-  transform: scale(1.02);
-  z-index: 5;
+/* ===== Modal layout (Create + Detail shared) ===== */
+.jModal{
+  width: min(800px, calc(100vw - 56px));
+  border-radius: 18px;
+  overflow: hidden;
 }
 
-/* Drag overlay */
-.jDragOverlay .jCard{
-  transform: translateY(-6px);
-  box-shadow:
-    0 18px 46px rgba(15, 23, 42, .14),
-    0 0 0 2px rgba(59,130,246,.28);
+.jModalHeader{
+  padding: 18px 22px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
 }
 
-/* 新增卡：不浮起、不位移、不光暈 */
-.jAddCard,
-.jAddCard:hover,
-.jAddCard:active,
-.jAddCard:focus {
-  transform: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  filter: none !important;
-}
-.jCard.jAddCard:hover,
-.jCard.jAddCard:active {
-  transform: none !important;
-  box-shadow: none !important;
+.jModalTitle{
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-/* 歷史副標：不顯示但保留佔位 */
-.jHistorySub,
-.jSectionHint,
-.jHistoryHint,
-.jHistoryTitle + div {
-  visibility: hidden !important;
-}
-
-/* right-top actions: home + segmented */
-.jHeaderActions{
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+.jModalSub{
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: .65;
+  display:flex;
   gap: 10px;
+  align-items:center;
   flex-wrap: wrap;
 }
 
-.journalDivider{
-  width: 100%;
-  height: 1px;
-  background: rgba(0,0,0,0.06);
-  margin: 12px 0 20px;
+.jPill{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.7);
+  font-size: 12px;
+  font-weight: 700;
 }
 
+.jModalBody{ padding: 20px 24px 16px; }
+
+.jGrid2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.jPanel{
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 14px;
+  background: rgba(255,255,255,.85);
+  padding: 14px;
+}
+
+.jRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(0,0,0,.06);
+}
+
+.jRow:last-child{
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.jLabel{
+  font-size: 12px;
+  opacity: .65;
+}
+
+.jValue{
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.jModalFooter{
+  padding: 14px 22px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+.jModalFooter--right{
+  justify-content: flex-end;
+}
+
+.jBtnRow{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+
+.jBtnGhost,
+.jBtnPrimary,
+.jBtnDanger{
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor:pointer;
+  border: 1px solid rgba(0,0,0,.10);
+  background: #fff;
+}
+
+.jBtnPrimary{
+  background: rgba(90,140,255,.12);
+  border-color: rgba(90,140,255,.25);
+}
+
+.jBtnDanger{
+  border-color: rgba(239,68,68,.35);
+  color: #ef4444;
+  background: rgba(255,255,255,.95);
+}
+
+.jForm{
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+
+.jField{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  align-items:start;
+}
+
+.jFieldLabel{
+  font-size: 12px;
+  opacity: .65;
+  padding-top: 8px;
+}
+
+.jFieldControl{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+
+.jFieldError{
+  font-size: 12px;
+  color: #b00020;
+}
+
+.jTextarea{
+  min-height: 90px;
+  resize: vertical;
+}
+
+@media (max-width: 860px){
+  .jGrid2{ grid-template-columns: 1fr; }
+  .jField{ grid-template-columns: 1fr; }
+  .jModal{ width: min(720px, calc(100vw - 28px)); }
+}
+
+/* ===== Cover Uploader (create/edit modal) ===== */
+.coverUpWrap{ margin: 10px 0 14px; }
+
+.coverUpBox{
+  width: 100%;
+  height: 140px;
+  border-radius: 14px;
+  border: 1px dashed rgba(0,0,0,.18);
+  background: rgba(255,255,255,.88);
+  display: block;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.coverUpBox:hover{
+  transform: translateY(-1px);
+  border-color: rgba(59,130,246,.45);
+  box-shadow: 0 14px 34px rgba(0,0,0,.10);
+}
+
+.coverUpImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coverUpEmpty{
+  height: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(15,23,42,.62);
+}
+
+.coverUpPlus{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  background: rgba(255,255,255,.75);
+}
+
+.coverUpText{
+  font-size: 12px;
+}
+
+.coverUpRemove{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.86);
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.coverUpRemove:hover{
+  border-color: rgba(239,68,68,.35);
+}

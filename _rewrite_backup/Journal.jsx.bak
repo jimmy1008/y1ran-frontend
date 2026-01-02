@@ -1,0 +1,184 @@
+﻿import React, { useEffect, useMemo, useState } from "react";
+import "./Journal.css";
+
+const LS_KEY = "y1ran_journal_entries_v1";
+
+function safeJsonParse(raw, fallback) {
+  try {
+    const v = JSON.parse(raw);
+    return v ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function loadEntries() {
+  const raw = localStorage.getItem(LS_KEY);
+  const arr = raw ? safeJsonParse(raw, []) : [];
+  if (Array.isArray(arr) && arr.length) return arr;
+
+  const seeded = [
+    { id: "e1", symbol: "BTC", dir: "Long", time: "2025-12-20 22:16", cover: "", status: "open" },
+    { id: "e2", symbol: "BTC", dir: "Long", time: "2025-12-20 22:00", cover: "", status: "open" },
+    { id: "e3", symbol: "BTC", dir: "Long", time: "2025-12-19 13:22", cover: "", status: "open" },
+  ];
+  localStorage.setItem(LS_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+
+function saveEntries(list) {
+  localStorage.setItem(LS_KEY, JSON.stringify(list));
+}
+
+function toLocalDateKey(input) {
+  const d = new Date(String(input).replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export default function Journal() {
+  const [entries, setEntries] = useState(() => loadEntries());
+  const [tab, setTab] = useState("all");
+
+  useEffect(() => {
+    saveEntries(entries);
+  }, [entries]);
+
+  const todayKey = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
+
+  const todayEntries = useMemo(
+    () => entries.filter((e) => toLocalDateKey(e.time) === todayKey),
+    [entries, todayKey]
+  );
+
+  const historyEntries = useMemo(
+    () =>
+      entries.filter((e) => {
+        const k = toLocalDateKey(e.time);
+        return k && k < todayKey;
+      }),
+    [entries, todayKey]
+  );
+
+  const todayFiltered = useMemo(() => {
+    if (tab === "done") return todayEntries.filter((e) => e.status === "done");
+    if (tab === "today") return todayEntries;
+    if (tab === "week") return todayEntries;
+    return todayEntries;
+  }, [tab, todayEntries]);
+
+  const handleCardClick = (item) => {
+    console.log("CARD_CLICK", item?.id);
+  };
+
+  const handleCreateClick = () => {
+    console.log("CREATE_CLICK");
+  };
+
+  return (
+    <div className="jBoardMain">
+      <div className="jTopSpan">
+        <div className="jTitle">儀表板</div>
+        <div className="jTabs">
+          <button type="button" className={"jTab" + (tab === "all" ? " isActive" : "")} onClick={() => setTab("all")}>
+            全部
+          </button>
+          <button type="button" className={"jTab" + (tab === "today" ? " isActive" : "")} onClick={() => setTab("today")}>
+            今天
+          </button>
+          <button type="button" className={"jTab" + (tab === "week" ? " isActive" : "")} onClick={() => setTab("week")}>
+            本週
+          </button>
+          <button type="button" className={"jTab" + (tab === "done" ? " isActive" : "")} onClick={() => setTab("done")}>
+            已結單
+          </button>
+        </div>
+      </div>
+
+      <div className="journalDivider" />
+
+      <div className="jCardsRow">
+        {todayFiltered.map((item) => {
+          const coverSrc = (item?.cover || item?.coverUrl || item?.image || item?.screenshot || "").trim();
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className="jCard"
+              onClick={() => handleCardClick(item)}
+            >
+              <div className="jCover" aria-hidden="true">
+                {coverSrc ? (
+                  <img className="jCoverImg" src={coverSrc} alt="" />
+                ) : (
+                  <div className="jCoverPlaceholder" />
+                )}
+              </div>
+              <div className="jCardBody">
+                <div className="jSymbol">{item.symbol}</div>
+                <div className="jMetaLine">
+                  <span>{item.time}</span>
+                  <span className="jDot">·</span>
+                  <span>{item.dir}</span>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+
+        <button type="button" className="jCardAdd" onClick={handleCreateClick}>
+          <div className="jAddIcon">+</div>
+          <div className="jAddText">新增第一張紀錄卡</div>
+        </button>
+      </div>
+
+      <div className="jHistory">
+        <div className="jHistoryTitle">歷史</div>
+        <div className="jHistoryBox">
+          {historyEntries.length === 0 ? (
+            <div className="jHistoryEmpty">今天之前沒有卡片（你很乾淨）</div>
+          ) : (
+            <div className="jCardsRow jHistoryGrid">
+              {historyEntries.map((item) => {
+                const coverSrc = (item?.cover || item?.coverUrl || item?.image || item?.screenshot || "").trim();
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="jCard"
+                    onClick={() => handleCardClick(item)}
+                  >
+                    <div className="jCover" aria-hidden="true">
+                      {coverSrc ? (
+                        <img className="jCoverImg" src={coverSrc} alt="" />
+                      ) : (
+                        <div className="jCoverPlaceholder" />
+                      )}
+                    </div>
+                    <div className="jCardBody">
+                      <div className="jSymbol">{item.symbol}</div>
+                      <div className="jMetaLine">
+                        <span>{item.time}</span>
+                        <span className="jDot">·</span>
+                        <span>{item.dir}</span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
