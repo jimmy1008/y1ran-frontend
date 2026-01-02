@@ -15,3 +15,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     flowType: "pkce",
   },
 });
+
+if (import.meta.env.DEV) {
+  window.supabase = supabase;
+}

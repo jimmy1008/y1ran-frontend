@@ -2,6 +2,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import ProfileModal from "../../components/ProfileModal";
 import { useAuthUser } from "../../hooks/useAuthUser";
+import { useLastSeen } from "../../hooks/useLastSeen";
 import "./app-shell.css";
 
 const AVATAR_URL =
@@ -36,6 +37,7 @@ function saveBoundExchanges(arr) {
 export default function AppShell() {
   const nav = useNavigate();
   const { user, profile } = useAuthUser();
+  useLastSeen();
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileOverride, setProfileOverride] = useState(null);
   const [exModalOpen, setExModalOpen] = useState(false);
