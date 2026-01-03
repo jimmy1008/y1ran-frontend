@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import ProfileModal from "../../components/ProfileModal";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { useLastSeen } from "../../hooks/useLastSeen";
-import { adminListUsers } from "../../lib/adminApi";
+import { supabase } from "../../lib/supabase";
 import "./app-shell.css";
 
 const AVATAR_URL =
@@ -43,7 +43,7 @@ export default function AppShell() {
   const [profileOverride, setProfileOverride] = useState(null);
   const [exModalOpen, setExModalOpen] = useState(false);
   const [boundEx, setBoundEx] = useState(() => loadBoundExchanges());
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [canSeeAdmin, setCanSeeAdmin] = useState(false);
 
   useEffect(() => {
     saveBoundExchanges(boundEx);
@@ -51,14 +51,30 @@ export default function AppShell() {
 
   useEffect(() => {
     let alive = true;
+
     (async () => {
       try {
-        await adminListUsers({ page: 1, limit: 1 });
-        if (alive) setIsAdmin(true);
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
+        if (!session) return;
+
+        const res = await fetch(
+          "https://nitzsnrmeifjqxxkxefy.supabase.co/functions/v1/admin-users?limit=1&page=1",
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
+
+        if (!res.ok) throw new Error("not admin");
+        const json = await res.json();
+        if (json.ok && alive) setCanSeeAdmin(true);
       } catch {
-        if (alive) setIsAdmin(false);
+        if (alive) setCanSeeAdmin(false);
       }
     })();
+
     return () => {
       alive = false;
     };
@@ -129,7 +145,7 @@ export default function AppShell() {
             <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/portfolio?tab=asset">
               資產
             </NavLink>
-            {isAdmin && (
+            {canSeeAdmin && (
               <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/admin/users">
                 Admin
               </NavLink>
