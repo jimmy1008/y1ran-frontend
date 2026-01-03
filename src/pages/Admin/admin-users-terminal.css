@@ -1,0 +1,207 @@
+/* frontend/src/pages/Admin/admin-users-terminal.css */
+
+.termLine {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Cascadia Mono", "Courier New", monospace;
+  font-size: 12.5px;
+  margin: 6px 2px 10px;
+  color: rgba(235, 235, 235, 0.88);
+}
+
+.termPrompt {
+  color: #4fc1ff;
+}
+
+.termCmd {
+  color: rgba(235, 235, 235, 0.9);
+}
+
+.termDim {
+  opacity: 0.65;
+}
+
+.termInside {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.termInside * {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Cascadia Mono", "Courier New", monospace;
+}
+
+.termToolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.termToolbar input,
+.termToolbar select {
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(235, 235, 235, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.termBtn {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(235, 235, 235, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.termBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.termBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.termToolbarMeta {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: rgba(235, 235, 235, 0.75);
+}
+
+.termTableWrap {
+  overflow: auto;
+}
+
+.termTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.termTable th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: rgba(235, 235, 235, 0.8);
+  background: rgba(0, 0, 0, 0.22);
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.termTable td {
+  padding: 12px;
+  font-size: 12.5px;
+  color: rgba(235, 235, 235, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: top;
+}
+
+.termRow:hover td {
+  background: rgba(120, 190, 255, 0.08);
+}
+
+.termMuted {
+  opacity: 0.72;
+}
+
+.termChip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.termChip.ok {
+  border-color: rgba(120, 255, 180, 0.25);
+  background: rgba(120, 255, 180, 0.1);
+}
+
+.termChip.bad {
+  border-color: rgba(255, 120, 120, 0.25);
+  background: rgba(255, 120, 120, 0.1);
+}
+
+.termChip.warn {
+  border-color: rgba(255, 210, 120, 0.25);
+  background: rgba(255, 210, 120, 0.1);
+}
+
+.termActions {
+  display: inline-flex;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(-1px);
+  transition: 160ms ease;
+}
+
+.termRow:hover .termActions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.termActions button {
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(235, 235, 235, 0.92);
+}
+
+.termActions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.termActionsHint {
+  margin-left: 8px;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.termRow:hover .termActionsHint {
+  opacity: 0;
+}
+
+.termError {
+  padding: 10px 12px;
+  color: rgba(255, 140, 140, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 80, 80, 0.06);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.termLoading {
+  padding: 10px 12px;
+  font-size: 12px;
+  color: rgba(235, 235, 235, 0.75);
+}
+
+.termToolbarFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+}
+
+.termPager {
+  margin: 0 auto;
+  font-size: 12px;
+  color: rgba(235, 235, 235, 0.75);
+}
+
+.termActions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

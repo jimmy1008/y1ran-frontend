@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import ProfileModal from "../../components/ProfileModal";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { useLastSeen } from "../../hooks/useLastSeen";
+import { adminListUsers } from "../../lib/adminApi";
 import "./app-shell.css";
 
 const AVATAR_URL =
@@ -42,10 +43,26 @@ export default function AppShell() {
   const [profileOverride, setProfileOverride] = useState(null);
   const [exModalOpen, setExModalOpen] = useState(false);
   const [boundEx, setBoundEx] = useState(() => loadBoundExchanges());
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     saveBoundExchanges(boundEx);
   }, [boundEx]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        await adminListUsers({ page: 1, limit: 1 });
+        if (alive) setIsAdmin(true);
+      } catch {
+        if (alive) setIsAdmin(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   function bindExchange(id) {
     setBoundEx((prev) => {
@@ -99,8 +116,8 @@ export default function AppShell() {
           >
             <img className="appAvatarImg" src={avatarUrl} alt="avatar" />
           </button>
-          <div className="appName">{displayName}</div>
-          <div className="appUid">ID: {uid}</div>
+          <div className="appName appSidebarProfileName">{displayName}</div>
+          <div className="appUid appSidebarProfileMeta">ID: {uid}</div>
         </div>
 
         <div className="appBlock">
@@ -112,6 +129,11 @@ export default function AppShell() {
             <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/portfolio?tab=asset">
               資產
             </NavLink>
+            {isAdmin && (
+              <NavLink className={({ isActive }) => "appNavItem" + (isActive ? " isActive" : "")} to="/app/admin/users">
+                Admin
+              </NavLink>
+            )}
           </nav>
         </div>
 

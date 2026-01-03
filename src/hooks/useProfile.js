@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet } from "../api/client";
+import { supabase } from "../lib/supabase";
 import {
   getCachedProfile,
   isCacheFresh,
@@ -33,7 +33,17 @@ export function useProfile(userId, { enabled = true } = {}) {
     setLoading(!cached);
     setError(null);
 
-    withTimeout(apiGet("/api/profile"), 3500)
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
+    };
+
+    withTimeout(fetchProfile(), 3500)
       .then((data) => {
         if (!alive) return;
         setProfile(data || null);

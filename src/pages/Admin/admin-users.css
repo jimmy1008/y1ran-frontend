@@ -1,0 +1,356 @@
+/* frontend/src/pages/Admin/admin-users.css */
+.adminWrap {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.adminTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+.adminSub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.adminFilters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.input,
+.select {
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  border-radius: 12px;
+  padding: 0 12px;
+  outline: none;
+}
+.input {
+  min-width: 260px;
+  flex: 1;
+}
+.select {
+  min-width: 140px;
+}
+
+.btn {
+  height: 36px;
+  border-radius: 12px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+.btn:hover {
+  filter: brightness(1.05);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn.ghost {
+  background: transparent;
+}
+.btn.danger {
+  border-color: rgba(255, 60, 60, 0.6);
+  background: rgba(255, 60, 60, 0.12);
+}
+.btn.sm {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.adminCard {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.adminCardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.adminMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  opacity: 0.75;
+  flex-wrap: wrap;
+}
+.adminPager {
+  display: flex;
+  gap: 8px;
+}
+
+.tableWrap {
+  overflow: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+.table th {
+  font-size: 12px;
+  opacity: 0.75;
+  position: sticky;
+  top: 0;
+  background: rgba(20, 20, 20, 0.9);
+  backdrop-filter: blur(6px);
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+}
+.muted {
+  opacity: 0.7;
+  font-size: 12px;
+}
+.rowActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.pill.green {
+  background: rgba(40, 255, 120, 0.1);
+  border-color: rgba(40, 255, 120, 0.22);
+}
+.pill.red {
+  background: rgba(255, 80, 80, 0.1);
+  border-color: rgba(255, 80, 80, 0.22);
+}
+
+.loading {
+  padding: 14px;
+  opacity: 0.75;
+  font-size: 12px;
+}
+
+.adminError {
+  border: 1px solid rgba(255, 80, 80, 0.25);
+  background: rgba(255, 80, 80, 0.08);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.adminErrorTitle {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.adminErrorBody {
+  font-size: 12px;
+  opacity: 0.85;
+  white-space: pre-wrap;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+.modal {
+  width: min(520px, 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(25, 25, 25, 0.96);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+  padding: 14px;
+}
+.modalTitle {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.label.inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+.kv {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+}
+.kv .k {
+  width: 70px;
+  opacity: 0.7;
+}
+.kv .v {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dangerBox {
+  border-color: rgba(255, 60, 60, 0.35);
+}
+
+/* ===== Admin Console layout overrides ===== */
+.adminPage {
+  width: 100%;
+}
+
+.adminLayout {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.adminConsoleFrame {
+  width: min(1180px, calc(100% - 24px));
+  max-width: none;
+  margin: 12px 12px;
+}
+
+.adminTable td,
+.adminTable th {
+  white-space: nowrap;
+}
+
+.adminTable .colEmail,
+.adminTable .colUid {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adminTable .colAppUid {
+  width: 260px;
+  max-width: 260px;
+}
+
+.adminTable td.colAppUid {
+  white-space: normal;
+}
+
+.appSidebarProfileName,
+.appSidebarProfileMeta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* gray debug UUID (auth user_id) full display */
+.adminMutedUuid {
+  opacity: 0.55;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ===== Admin modal: force light theme ===== */
+.adminModalBackdrop {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.adminModal {
+  background: #ffffff;
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+}
+
+.adminModal h3,
+.adminModal label {
+  color: #111;
+}
+
+.adminModal input,
+.adminModal select {
+  background: #fff;
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.adminModal .hint,
+.adminModal .muted {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.adminModal .primaryText {
+  color: #00d26a;
+}
+
+.adminModal button {
+  color: #111;
+}
+
+/* ===== Admin console: green primary text ===== */
+.adminConsoleFrame .termBody {
+  color: #00d26a;
+}
+
+.adminConsoleFrame .termLine,
+.adminConsoleFrame .termTable td {
+  color: #00d26a;
+}
+
+.adminConsoleFrame .termTable th {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.adminConsoleFrame .termMuted,
+.adminConsoleFrame .termToolbarMeta,
+.adminConsoleFrame .termPager,
+.adminConsoleFrame .termActionsHint {
+  color: rgba(255, 255, 255, 0.55);
+}

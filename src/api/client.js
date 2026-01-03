@@ -1,13 +1,14 @@
 ﻿// src/api/client.js
 import { supabase } from "../lib/supabase";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:8080";
+export const API_BASE = import.meta.env.VITE_API_BASE || "";
+
+export function apiUrl(path) {
+  return API_BASE ? `${API_BASE}${path}` : path;
+}
 
 export async function apiFetch(path, options = {}) {
-  const url = `${API_BASE}${path}`;
+  const url = apiUrl(path);
   const { data } = await supabase.auth.getSession();
   const token = data?.session?.access_token || null;
   const headers = {

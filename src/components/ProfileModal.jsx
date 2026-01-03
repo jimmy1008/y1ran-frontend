@@ -1,7 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { apiGet, apiPut } from "../api/client";
 import { supabase } from "../lib/supabase";
 import { uploadAvatar } from "../lib/avatarUpload";
 import { useAuthUser } from "../hooks/useAuthUser";
@@ -11,6 +10,28 @@ import {
   setCachedProfile,
 } from "../lib/profileCache";
 import "./profile-modal.css";
+
+async function fetchProfileById(userId) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data ?? null;
+}
+
+async function upsertProfile(userId, patch, email) {
+  const payload = { id: userId, ...patch };
+  if (email) payload.email = email;
+  const { data, error } = await supabase
+    .from("profiles")
+    .upsert(payload, { onConflict: "id" })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
 
 export default function ProfileModal({ open, onClose, onProfileUpdated }) {
   const nav = useNavigate();
@@ -78,6 +99,13 @@ export default function ProfileModal({ open, onClose, onProfileUpdated }) {
     setSuccess("");
     setLoading(!cached);
 
+    if (!userId) {
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
     if (cached && isCacheFresh()) {
       setLoading(false);
       return () => {
@@ -93,7 +121,7 @@ export default function ProfileModal({ open, onClose, onProfileUpdated }) {
         ),
       ]);
 
-    withTimeout(apiGet("/api/profile"), 3500)
+    withTimeout(fetchProfileById(userId), 3500)
       .then((p) => {
         if (cancelled) return;
         setProfile(p || null);
@@ -135,7 +163,7 @@ export default function ProfileModal({ open, onClose, onProfileUpdated }) {
     setSaving(true);
     try {
       const url = await uploadAvatar({ userId: user.id, file });
-      const updated = await apiPut("/api/profile", { avatar_url: url });
+      const updated = await upsertProfile(user.id, { avatar_url: url }, user.email);
       setProfile(updated);
       setAvatarUrl(updated?.avatar_url ?? url);
       setSuccess("頭貼已更新");
@@ -149,15 +177,17 @@ export default function ProfileModal({ open, onClose, onProfileUpdated }) {
   };
 
   const onSave = async () => {
-    if (!profile) return;
+    if (!profile || !user?.id) return;
     setErr("");
     setSuccess("");
     setSaving(true);
 
     try {
-      const updated = await apiPut("/api/profile", {
-        display_name: nickname.trim(),
-      });
+      const updated = await upsertProfile(
+        user.id,
+        { display_name: nickname.trim() },
+        user.email,
+      );
       setProfile(updated);
       setNickname(updated?.nickname ?? updated?.display_name ?? "");
       setAvatarUrl(updated?.avatar_url ?? "");
