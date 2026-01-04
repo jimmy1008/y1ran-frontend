@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   adminDeleteUser,
   adminListUsers,
+  adminBanUser,
   adminPatchProfile,
 } from "../../lib/adminApi";
 import TerminalFrame from "./TerminalFrame";
@@ -20,66 +21,102 @@ function toAppUid(authUid) {
   return hex.length >= 6 ? `a${hex.slice(0, 6)}` : "-";
 }
 
-function matchUser(u, qRaw) {
-  const q = String(qRaw || "").trim().toLowerCase();
-  if (!q) return true;
-  const email = String(u.email || "").toLowerCase();
-  const appUid = String(toAppUid(u.uid) || "").toLowerCase();
-  const userId = String(u.uid || "").toLowerCase();
-  const userIdCompact = userId.replace(/-/g, "");
-  const qCompact = q.replace(/-/g, "");
+const norm = (s) => String(s ?? "").trim().toLowerCase();
+
+const matchesQuery = (u, q) => {
+  const x = norm(q);
+  if (!x) return true;
+
+  const email = norm(u.email);
+  const uid = norm(u.uid);
+  const app = norm(u.app_uid || toAppUid(u.uid));
+  const name = norm(u.display_name);
+  const uidCompact = uid.replace(/-/g, "");
+  const xCompact = x.replace(/-/g, "");
+
   return (
-    email.includes(q) ||
-    appUid === q ||
-    userId.includes(q) ||
-    userIdCompact.includes(qCompact)
+    email.includes(x) ||
+    uid.includes(x) ||
+    uidCompact.includes(xCompact) ||
+    app.includes(x) ||
+    name.includes(x)
   );
-}
+};
+
+const applyFilters = (users, { q, plan, status }) => {
+  return (users ?? []).filter((u) => {
+    const p = norm(plan);
+    const s = norm(status);
+    if (p && p !== "all" && norm(u.plan || "free") !== p) return false;
+
+    if (s && s !== "all") {
+      const isBanned = Boolean(u.is_banned);
+      if (s === "active" && isBanned) return false;
+      if (s === "banned" && !isBanned) return false;
+    }
+
+    if (!matchesQuery(u, q)) return false;
+    return true;
+  });
+};
 
 export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const [data, setData] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [build, setBuild] = useState("-");
 
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
 
+  const [qInput, setQInput] = useState("");
   const [q, setQ] = useState("");
-  const [plan, setPlan] = useState("");
-  const [banned, setBanned] = useState("");
-  const [searchToken, setSearchToken] = useState(0);
+  const [plan, setPlan] = useState("all");
+  const [status, setStatus] = useState("all");
 
   const [edit, setEdit] = useState(null);
-  const [danger, setDanger] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
 
+  const filteredUsers = useMemo(
+    () => applyFilters(users, { q, plan, status }),
+    [users, q, plan, status],
+  );
+
+  const hasFilter =
+    norm(q) !== "" ||
+    (norm(plan) !== "" && norm(plan) !== "all") ||
+    (norm(status) !== "" && norm(status) !== "all");
+  const totalDisplay = hasFilter ? filteredUsers.length : total;
   const totalPages = useMemo(() => {
-    const t = data?.total ?? 0;
-    return Math.max(1, Math.ceil(t / limit));
-  }, [data, limit]);
+    return Math.max(1, Math.ceil(totalDisplay / limit));
+  }, [totalDisplay, limit]);
 
-  const users = data?.users ?? [];
-  const total = data?.total ?? 0;
-  const build = data?.build ?? "-";
-
-  async function load() {
+  async function load(pageOverride) {
     setLoading(true);
     setErr("");
     try {
+      const nextPage =
+        typeof pageOverride === "number" && Number.isFinite(pageOverride)
+          ? pageOverride
+          : page;
       const r = await adminListUsers({
-        page,
+        page: nextPage,
         limit,
-        q: q.trim(),
-        plan,
-        status: banned,
       });
-      const list = r?.users ?? [];
-      const qTrim = q.trim();
-      const filtered = qTrim ? list.filter((u) => matchUser(u, qTrim)) : list;
-      const totalOut = qTrim ? filtered.length : r?.total ?? filtered.length;
-      setData({ ...r, users: filtered, total: totalOut });
+      const list = (r?.users ?? []).map((u) => ({
+        ...u,
+        app_uid: u.app_uid ?? toAppUid(u.uid),
+      }));
+      setUsers(list);
+      setTotal(r?.total ?? list.length);
+      setBuild(r?.build ?? "-");
     } catch (e) {
       setErr(e?.error || e?.message || JSON.stringify(e));
-      setData(null);
+      setUsers([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -88,17 +125,29 @@ export default function AdminUsers() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, plan, banned, searchToken]);
+  }, [page]);
 
   async function onSearchSubmit(e) {
     e.preventDefault();
+    const next = qInput.trim();
+    setQ(next);
+    setQInput(next);
     setPage(1);
-    setSearchToken((n) => n + 1);
   }
 
   async function toggleBan(u) {
-    await adminPatchProfile(u.uid, { is_banned: !u.is_banned });
-    await load();
+    const next = !Boolean(u.is_banned);
+    setUsers((prev) =>
+      prev.map((x) => (x.uid === u.uid ? { ...x, is_banned: next } : x)),
+    );
+    try {
+      await adminBanUser(u.uid, next);
+    } catch (e) {
+      setUsers((prev) =>
+        prev.map((x) => (x.uid === u.uid ? { ...x, is_banned: !next } : x)),
+      );
+      alert(String(e?.message ?? e));
+    }
   }
 
   async function saveEdit() {
@@ -114,18 +163,26 @@ export default function AdminUsers() {
     await load();
   }
 
-  async function confirmDelete() {
-    if (!danger) return;
-    if (
-      (danger.confirmEmail ?? "").trim().toLowerCase() !==
-      (danger.email ?? "").toLowerCase()
-    ) {
-      alert("Email mismatch. Delete blocked.");
-      return;
+  function openDelete(u) {
+    setDeleteTarget({ uid: u.uid, email: u.email });
+    setDeleteConfirm("");
+    setDeleteOpen(true);
+  }
+
+  const deleteOk =
+    deleteTarget && norm(deleteConfirm) === norm(deleteTarget.email);
+
+  async function onConfirmDelete() {
+    if (!deleteTarget || !deleteOk) return;
+    try {
+      await adminDeleteUser(deleteTarget.uid);
+      setUsers((prev) => prev.filter((x) => x.uid !== deleteTarget.uid));
+      setTotal((prev) => Math.max(0, prev - 1));
+      setDeleteOpen(false);
+      setDeleteTarget(null);
+    } catch (e) {
+      alert(String(e?.message ?? e));
     }
-    await adminDeleteUser(danger.uid);
-    setDanger(null);
-    await load();
   }
 
   return (
@@ -142,8 +199,8 @@ export default function AdminUsers() {
             <form className="termToolbar" onSubmit={onSearchSubmit}>
               <input
                 placeholder="search email / uid"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                value={qInput}
+                onChange={(e) => setQInput(e.target.value)}
               />
               <select
                 value={plan}
@@ -152,7 +209,7 @@ export default function AdminUsers() {
                   setPage(1);
                 }}
               >
-                <option value="">all plans</option>
+                <option value="all">all plans</option>
                 {PLANS.map((p) => (
                   <option key={p} value={p}>
                     {p}
@@ -160,15 +217,15 @@ export default function AdminUsers() {
                 ))}
               </select>
               <select
-                value={banned}
+                value={status}
                 onChange={(e) => {
-                  setBanned(e.target.value);
+                  setStatus(e.target.value);
                   setPage(1);
                 }}
               >
-                <option value="">all status</option>
-                <option value="true">banned</option>
-                <option value="false">active</option>
+                <option value="all">all status</option>
+                <option value="banned">banned</option>
+                <option value="active">active</option>
               </select>
               <button className="termBtn" type="submit" disabled={loading}>
                 Search
@@ -185,7 +242,7 @@ export default function AdminUsers() {
                 <span>
                   page {page} / {totalPages}
                 </span>
-                <span>total {total}</span>
+                <span>total {totalDisplay}</span>
                 <span>build {build}</span>
               </div>
             </form>
@@ -206,8 +263,8 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
-                    <tr key={u.uid} className="termRow">
+                {filteredUsers.map((u) => (
+                  <tr key={u.uid} className="termRow">
                       <td className="colEmail">
                         <div>{u.email}</div>
                         <div className="termMuted">{u.display_name ?? "-"}</div>
@@ -236,25 +293,19 @@ export default function AdminUsers() {
                           >
                             {u.is_banned ? "unban" : "ban"}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setDanger({
-                                uid: u.uid,
-                                email: u.email,
-                                confirmEmail: "",
-                              })
-                            }
-                          >
-                            delete
-                          </button>
+                        <button
+                          type="button"
+                          onClick={() => openDelete(u)}
+                        >
+                          delete
+                        </button>
                         </div>
                         <span className="termActionsHint">hover for actions</span>
                       </td>
                     </tr>
                   ))}
-                  {!loading && users.length === 0 && (
-                    <tr>
+                {!loading && filteredUsers.length === 0 && (
+                  <tr>
                       <td colSpan={7} className="termMuted">
                         no data
                       </td>
@@ -366,10 +417,14 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {danger && (
+      {deleteOpen && deleteTarget && (
         <div
           className="modalOverlay adminModalBackdrop"
-          onMouseDown={() => setDanger(null)}
+          onMouseDown={() => {
+            setDeleteOpen(false);
+            setDeleteTarget(null);
+            setDeleteConfirm("");
+          }}
         >
           <div
             className="modal dangerBox adminModal"
@@ -378,32 +433,32 @@ export default function AdminUsers() {
             <div className="modalTitle">Delete User (Danger)</div>
             <div className="modalBody">
               <div className="muted">You are deleting:</div>
-              <div className="mono">{danger.email}</div>
+              <div className="mono">{deleteTarget.email}</div>
               <div className="muted" style={{ marginTop: 8 }}>
                 Type the full email to confirm.
               </div>
               <input
                 className="input"
-                value={danger.confirmEmail}
-                onChange={(e) =>
-                  setDanger({ ...danger, confirmEmail: e.target.value })
-                }
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
                 placeholder="type email to confirm"
               />
             </div>
             <div className="modalActions">
-              <button className="btn ghost" onClick={() => setDanger(null)}>
+              <button
+                className="btn ghost"
+                onClick={() => {
+                  setDeleteOpen(false);
+                  setDeleteTarget(null);
+                  setDeleteConfirm("");
+                }}
+              >
                 Cancel
               </button>
               <button
                 className="btn danger"
-                onClick={async () => {
-                  try {
-                    await confirmDelete();
-                  } catch (e) {
-                    alert(e?.error || e?.message || JSON.stringify(e));
-                  }
-                }}
+                disabled={!deleteOk}
+                onClick={onConfirmDelete}
               >
                 Delete (I know what I am doing)
               </button>

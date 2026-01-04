@@ -16,6 +16,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import CoverUploader from "../../components/CoverUploader";
 import { supabase } from "../../lib/supabase";
+import { listJournalEntries } from "../../lib/journalApi";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import "./Journal.css";
 
@@ -45,14 +46,7 @@ function loadEntries() {
   const raw = localStorage.getItem(LS_KEY);
   const arr = raw ? safeJsonParse(raw, []) : [];
   if (Array.isArray(arr) && arr.length) return arr.map(normalizeEntry);
-
-  const seeded = [
-    { id: "e1", symbol: "BTC", dir: "Long", time: "2025-12-17 13:51", cover: "", status: "open" },
-    { id: "e2", symbol: "BTC", dir: "Long", time: "2025-12-17 13:50", cover: "", status: "done" },
-    { id: "e3", symbol: "BTC", dir: "Long", time: "2025-12-17 13:01", cover: "", status: "open" },
-  ];
-  localStorage.setItem(LS_KEY, JSON.stringify(seeded));
-  return seeded.map(normalizeEntry);
+  return [];
 }
 
 function saveEntries(list) {
@@ -72,6 +66,38 @@ function normalizeEntry(entry) {
     cover_path: entry.cover_path ?? entry.coverPath ?? "",
     cover_updated_at: entry.cover_updated_at ?? entry.coverUpdatedAt ?? "",
   };
+}
+
+function fmtLocalYmdHm(ts) {
+  const d = ts ? new Date(ts) : null;
+  if (!d || Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day} ${hh}:${mm}`;
+}
+
+function sideToDir(side) {
+  const s = String(side || "").toLowerCase();
+  return s === "short" ? "Short" : "Long";
+}
+
+function mapDbRowToEntry(row) {
+  return normalizeEntry({
+    id: row.id,
+    symbol: row.symbol || "—",
+    dir: sideToDir(row.side),
+    time: fmtLocalYmdHm(row.created_at),
+    status: row.exit_price != null ? "done" : "open",
+    note: row.note || "",
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    entry_price: row.entry_price ?? "",
+    exit_price: row.exit_price ?? "",
+    pnl: row.pnl ?? "",
+    cover: "",
+  });
 }
 
 function formatNow() {
@@ -225,6 +251,8 @@ function SortableSection({ items, setItems, renderCard, disabled = false, append
 }
 
 export default function Journal() {
+  console.log("[Journal] BUILD MARK:", "2026-01-04 A");
+  window.__build_mark__ = "2026-01-04 A";
   const [sp, setSp] = useSearchParams();
   const nav = useNavigate();
   const { user } = useAuthUser();
@@ -234,7 +262,7 @@ export default function Journal() {
   const [createOpen, setCreateOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [active, setActive] = useState(null);
-  const [entries, setEntries] = useState(() => loadEntries());
+  const [entries, setEntries] = useState([]);
   const [createForm, setCreateForm] = useState(EMPTY_CREATE_FORM);
   const [createErrors, setCreateErrors] = useState({});
   const [draftCoverFile, setDraftCoverFile] = useState(null);
@@ -251,6 +279,31 @@ export default function Journal() {
   useEffect(() => {
     saveEntries(entries);
   }, [entries]);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) return;
+
+      const { data, error } = await listJournalEntries(supabase, { limit: 50 });
+      if (!alive) return;
+      if (error) {
+        console.error("[journal] list error:", error);
+        return;
+      }
+
+      const mapped = (data || []).map(mapDbRowToEntry);
+      window.__journal_entries__ = mapped;
+      console.log("[journal] mapped:", mapped);
+      setEntries(mapped);
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (sp.get("create") === "1") {

@@ -284,6 +284,7 @@
 
 /* gray debug UUID (auth user_id) full display */
 .adminMutedUuid {
+  color: rgba(255, 255, 255, 0.55);
   opacity: 0.55;
   font-size: 12px;
   line-height: 1.2;

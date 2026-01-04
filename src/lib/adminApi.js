@@ -61,6 +61,13 @@ export async function adminPatchProfile(uid, updates) {
   });
 }
 
+export async function adminBanUser(uid, is_banned) {
+  return callAdminUsers("/admin-users/ban", {
+    method: "POST",
+    body: { uid, is_banned: Boolean(is_banned) },
+  });
+}
+
 export async function adminDeleteUser(uid) {
   const url = new URL("/admin-users", "https://x");
   url.searchParams.set("uid", uid);
