@@ -251,8 +251,9 @@ function SortableSection({ items, setItems, renderCard, disabled = false, append
 }
 
 export default function Journal() {
-  console.log("[Journal] BUILD MARK:", "2026-01-04 A");
-  window.__build_mark__ = "2026-01-04 A";
+  const gitSha = typeof __GIT_SHA__ !== "undefined" ? __GIT_SHA__ : "no-sha";
+  console.log("[build] git sha:", gitSha);
+  window.__git_sha__ = gitSha;
   const [sp, setSp] = useSearchParams();
   const nav = useNavigate();
   const { user } = useAuthUser();
